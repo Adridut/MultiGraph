@@ -11,6 +11,9 @@ from hyperg.utils import print_log
 
 import csv
 from itertools import groupby
+import random
+
+# random.seed(0)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
 
@@ -81,7 +84,13 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
 
     return X_train, X_test, y_train, y_test
 
-def load_ASERTAIN(selected_modalities=['EMO']):
+def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='valence'):
+
+    if label == 'valence':
+        label_index = 2
+    elif label == 'arousal':
+        label_index = 3
+
     dir = os.path.join(DATA_DIR, "ASCERTAIN_Features")
     """
 	convert csv to np array
@@ -93,7 +102,7 @@ def load_ASERTAIN(selected_modalities=['EMO']):
         data = np.asarray(data[1:]).astype(float)
 
     subject_id_index = np.where(columns == 'subject_id')[0][0]
-    # case_id_index = np.where(columns == 'case_id')[0][0]
+    case_id_index = np.where(columns == 'case_id')[0][0]
 
     # select modality
     selected_index = [i for i in range(len(columns)) 
@@ -107,8 +116,8 @@ def load_ASERTAIN(selected_modalities=['EMO']):
     group data upon subject id
     """
     data_grouped = [list(it) for k, it in groupby(data.tolist(), lambda x: x[subject_id_index])]
-    # random.shuffle(data_grouped)
-    split_index = int((len(data_grouped))*80/100)
+    random.shuffle(data_grouped)
+    split_index = int((len(data_grouped))*train_ratio/100)
     train = data_grouped[:split_index]
     train = [item for sublist in train for item in sublist] # flatten
     test = data_grouped[split_index:]
@@ -116,8 +125,11 @@ def load_ASERTAIN(selected_modalities=['EMO']):
 
     X_train = np.asarray(train)[1:, 3:]
     X_test = np.asarray(test)[1:, 3:]
-    y_train = np.asarray(train)[1:, 2]
-    y_test = np.asarray(test)[1:, 2]
+    y_train = np.asarray(train)[1:, label_index]
+    y_test = np.asarray(test)[1:, label_index]
+
+    X_train = normalize(X_train)
+    X_test = normalize(X_test)
 
     return X_train, X_test, y_train, y_test
 
