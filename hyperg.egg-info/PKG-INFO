@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: hyperg
+Version: 0.0.3
+Summary: A python toolbox for hypergraph learning
+Home-page: https://github.com/iMoonLab/THU-HyperG
+Author: Haojie Lin
+Author-email: linhj18@mails.tsinghua.edu.cn
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+License-File: LICENSE
+
+UNKNOWN
+

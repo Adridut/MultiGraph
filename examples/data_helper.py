@@ -9,6 +9,9 @@ from sklearn.preprocessing import normalize
 from hyperg.utils import minmax_scale
 from hyperg.utils import print_log
 
+import csv
+from itertools import groupby
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
 
 
@@ -77,6 +80,50 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
     y_test = y[i_indices == 0]
 
     return X_train, X_test, y_train, y_test
+
+def load_ASERTAIN(selected_modalities=['EMO']):
+    dir = os.path.join(DATA_DIR, "ASCERTAIN_Features")
+    """
+	convert csv to np array
+	"""
+    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
+        reader = csv.reader(file)
+        data = list(reader)
+        columns = np.asarray(data[0])
+        data = np.asarray(data[1:]).astype(float)
+
+    subject_id_index = np.where(columns == 'subject_id')[0][0]
+    # case_id_index = np.where(columns == 'case_id')[0][0]
+
+    # select modality
+    selected_index = [i for i in range(len(columns)) 
+							if (not is_column_feature(columns, i)) or (is_column_feature(columns, i) and (columns[i].split('_')[0] in selected_modalities)) ]
+    data = data[:,selected_index]
+    # columns = [columns[i] for i in selected_index if i < 4]
+
+
+    """
+    split train and test dataset subject-wise based on self.split_ratio
+    group data upon subject id
+    """
+    data_grouped = [list(it) for k, it in groupby(data.tolist(), lambda x: x[subject_id_index])]
+    # random.shuffle(data_grouped)
+    split_index = int((len(data_grouped))*80/100)
+    train = data_grouped[:split_index]
+    train = [item for sublist in train for item in sublist] # flatten
+    test = data_grouped[split_index:]
+    test = [item for sublist in test for item in sublist] # flatten
+
+    X_train = np.asarray(train)[1:, 3:]
+    X_test = np.asarray(test)[1:, 3:]
+    y_train = np.asarray(train)[1:, 2]
+    y_test = np.asarray(test)[1:, 2]
+
+    return X_train, X_test, y_train, y_test
+
+
+def is_column_feature(columns, column_index):
+	return ('label' not in columns[column_index] and 'id' not in columns[column_index])
 
 
 if __name__ == "__main__":
