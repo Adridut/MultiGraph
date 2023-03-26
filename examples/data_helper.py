@@ -115,7 +115,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='val
     split train and test dataset subject-wise based on self.split_ratio
     group data upon subject id
     """
-    data_grouped = [list(it) for k, it in groupby(data.tolist(), lambda x: x[subject_id_index])]
+    data_grouped = [list(it) for k, it in groupby(data.tolist())]
     random.shuffle(data_grouped)
 
     attributes_idx = {"subjects": []}
@@ -124,13 +124,10 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='val
         subject_id = {'attri_'+str(i): []}
         attributes_idx["subjects"].append(subject_id)
 
-    for i in range(len(data_grouped)):
-        print(i)
-        id = int(data_grouped[i][0][0])
-        print(id)
-        attr = attributes_idx['subjects'][id]['attri_'+str(id)]
-        print(attr)
-        attr = attr.append(i)
+    all_data = [item for sublist in data_grouped for item in sublist]
+    for i in range(len(all_data)):
+        id = int(all_data[i][0])
+        attributes_idx['subjects'][id]['attri_'+str(id)].append(i)
 
     print(attributes_idx['subjects'])
 
