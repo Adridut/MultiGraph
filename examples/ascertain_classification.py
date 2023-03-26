@@ -50,7 +50,7 @@ def main():
     ]
 
     print_log("learning on hypergraph")
-    y_predict = multi_hg_weighting_trans_infer(hg_list, y, lbd=100, max_iter=100, mu=0.00000001)
+    y_predict = multi_hg_weighting_trans_infer(hg_list, y, lbd=100, max_iter=10, mu=0.00000001)
     print_log("accuracy: {}".format(accuracy_score(y_test, y_predict)))
     print_log("f1: {}".format(f1_score(y_test, y_predict), average='weighted'))
 

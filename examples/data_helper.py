@@ -117,12 +117,30 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='val
     """
     data_grouped = [list(it) for k, it in groupby(data.tolist(), lambda x: x[subject_id_index])]
     random.shuffle(data_grouped)
+
+    attributes_idx = {"subjects": []}
+
+    for i in range(58):
+        subject_id = {'attri_'+str(i): []}
+        attributes_idx["subjects"].append(subject_id)
+
+    for i in range(len(data_grouped)):
+        print(i)
+        id = int(data_grouped[i][0][0])
+        print(id)
+        attr = attributes_idx['subjects'][id]['attri_'+str(id)]
+        print(attr)
+        attr = attr.append(i)
+
+    print(attributes_idx['subjects'])
+
     split_index = int((len(data_grouped))*train_ratio/100)
     train = data_grouped[:split_index]
     train = [item for sublist in train for item in sublist] # flatten
     test = data_grouped[split_index:]
     test = [item for sublist in test for item in sublist] # flatten
-
+    
+    
     X_train = np.asarray(train)[1:, 3:]
     X_test = np.asarray(test)[1:, 3:]
     y_train = np.asarray(train)[1:, label_index]
