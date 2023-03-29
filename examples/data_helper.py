@@ -4,7 +4,8 @@ import pickle as pkl
 import numpy as np
 import scipy.io as scio
 import SimpleITK as sitk
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize, StandardScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 from hyperg.utils import minmax_scale
 from hyperg.utils import print_log
@@ -86,6 +87,9 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
 
 def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='valence'):
 
+    n_subjects = 58
+    n_cases = 36
+
     if label == 'valence':
         label_index = 2
     elif label == 'arousal':
@@ -118,35 +122,46 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='val
     data_grouped = [list(it) for k, it in groupby(data.tolist())]
     random.shuffle(data_grouped)
 
-    attributes_idx = {"subjects": []}
-
-    for i in range(58):
+    subject_attributes = []
+    video_attributes = []
+    for i in range(n_subjects):
         subject_id = {'attri_'+str(i): []}
-        attributes_idx["subjects"].append(subject_id)
+        subject_attributes.append(subject_id)
+
+    for i in range(n_cases):
+        video_id = {'attri_'+str(i): []}
+        video_attributes.append(video_id)
 
     all_data = [item for sublist in data_grouped for item in sublist]
-    for i in range(len(all_data)):
-        id = int(all_data[i][0])
-        attributes_idx['subjects'][id]['attri_'+str(id)].append(i)
-
-    print(attributes_idx['subjects'])
+    all_data = np.asarray(all_data)
+    
+    for i in range(len(all_data[1:, 3:])):
+        subject_id = int(all_data[i][0])
+        subject_attributes[subject_id]['attri_'+str(subject_id)].append(i)
+        case_id = int(all_data[i][1])
+        video_attributes[case_id]['attri_'+str(case_id)].append(i)
 
     split_index = int((len(data_grouped))*train_ratio/100)
-    train = data_grouped[:split_index]
+    train = data_grouped[:split_index+1]
     train = [item for sublist in train for item in sublist] # flatten
     test = data_grouped[split_index:]
     test = [item for sublist in test for item in sublist] # flatten
-    
-    
+        
     X_train = np.asarray(train)[1:, 3:]
     X_test = np.asarray(test)[1:, 3:]
     y_train = np.asarray(train)[1:, label_index]
     y_test = np.asarray(test)[1:, label_index]
 
+    scaler = StandardScaler()
+    lda = LinearDiscriminantAnalysis()
     X_train = normalize(X_train)
     X_test = normalize(X_test)
+    X_train = scaler.fit_transform(X_train, y_train)
+    X_test = scaler.transform(X_test)
+    X_train = lda.fit_transform(X_train, y_train)
+    X_test = lda.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, subject_attributes, video_attributes
 
 
 def is_column_feature(columns, column_index):
