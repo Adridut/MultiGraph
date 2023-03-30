@@ -23,17 +23,11 @@ from dhg.models import HGNN
 from dhg.random import set_seed
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
 
-def HGNNTrain():
-    # set_seed(2021)
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+from utils import WeightedAverage
 
-    print_log("loading data")
-    selected_modalities=['ECG']
-    X, y, train_mask, test_mask, val_mask, _, _ = load_ASERTAIN(selected_modalities=selected_modalities, label = 'valence', train_ratio=60, val_ratio=20, test_ratio=20)
+def HGNNTrain(device, X, y, train_mask, test_mask, val_mask):
 
     print_log("generating hypergraph")
-    X = torch.tensor(X)
-    y = torch.tensor(y, dtype=torch.long)
     G = Hypergraph.from_feature_kNN(X, k=3)
     X, lbl = torch.eye(G.num_v), y
     train_mask = torch.tensor(train_mask)
@@ -41,16 +35,8 @@ def HGNNTrain():
     test_mask = torch.tensor(test_mask)
     n_classes = 2
 
-    # X, lbl = torch.eye(data["num_vertices"]), data["labels"]
-    # G = Hypergraph(data["num_vertices"], data["edge_list"])
-    # train_mask = data["train_mask"]
-    # val_mask = data["val_mask"]
-    # test_mask = data["test_mask"]
-    # n_classes = data["num_classes"]
-
-
-    net = HGNN(X.shape[1], 32, n_classes, use_bn=False)
-    optimizer = optim.Adam(net.parameters(), lr=0.01, weight_decay=5e-4)
+    net = HGNN(X.shape[1], 8, n_classes, use_bn=False)
+    optimizer = optim.Adam(net.parameters(), lr=0.0001, weight_decay=5e-4)
 
     X, lbl = X.to(device), lbl.to(device)
     G = G.to(device)
@@ -64,7 +50,7 @@ def HGNNTrain():
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res = infer(net, X, G, lbl, val_mask)
+                val_res, _ = infer(net, X, G, lbl, val_mask)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -75,9 +61,10 @@ def HGNNTrain():
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res = infer(net, X, G, lbl, test_mask, test=True)
+    res, outs = infer(net, X, G, lbl, test_mask, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
+    return outs
 
 def train(net, X, A, lbls, train_idx, optimizer, epoch):
     net.train()
@@ -103,7 +90,7 @@ def infer(net, X, A, lbls, idx, test=False):
         res = evaluator.validate(lbls, outs)
     else:
         res = evaluator.test(lbls, outs)
-    return res
+    return res, outs
 
 def singleHG():
     print_log("loading data")
@@ -174,4 +161,28 @@ def is_column_feature(columns, column_index):
 
 
 if __name__ == "__main__":
-    HGNNTrain()
+    set_seed(0)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+    print_log("loading data")
+    hgnn_results = []
+    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities=[['ECG'], ['EEG']]
+    for m in selected_modalities:
+        print_log(m)
+        X, y, train_mask, test_mask, val_mask, _, _ = load_ASERTAIN(selected_modalities=m, label = 'valence', train_ratio=60, val_ratio=20, test_ratio=20)
+        X = torch.tensor(X)
+        y = torch.tensor(y, dtype=torch.long)
+        outs = HGNNTrain(device, X, y, train_mask, test_mask, val_mask)
+        hgnn_results.append(outs)
+
+
+    # w_avg = WeightedAverage(n_output=len(hgnn_results))(hgnn_results)
+    # evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "weighted"}}])
+
+    # optimizer = optim.Adam(net.parameters(), lr=0.0001, weight_decay=5e-4)
+    # loss = F.cross_entropy(outs, lbls)
+    # loss.backward()
+    # optimizer.step()
+
+    

@@ -87,6 +87,8 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
 
 def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20):
 
+    random.seed(0)
+    
     n_subjects = 58
     n_cases = 36
 
@@ -150,7 +152,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     X = all_data[1:, 3:]
     y = all_data[1:, label_index]
 
-    # X = normalize(X)
+    X = normalize(X)
 
     train_mask = [True for i in range(round(len(X)*train_ratio/100))] + [False for i in range(round(len(X)-len(X)*train_ratio/100))]
     test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
