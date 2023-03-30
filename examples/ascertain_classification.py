@@ -24,29 +24,32 @@ from dhg.random import set_seed
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
 
 def HGNNTrain():
-    set_seed(2021)
+    # set_seed(2021)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    data = Cooking200()
 
     print_log("loading data")
     selected_modalities=['ECG']
-    X_train, X_test, y_train, y_test, _, _ = load_ASERTAIN(selected_modalities=selected_modalities, label = 'arousal', train_ratio=80)
-
-    X = np.concatenate([X_train, X_test])
-    y = np.concatenate([y_train, -1 * np.ones_like(y_test)])
+    X, y, train_mask, test_mask, val_mask, _, _ = load_ASERTAIN(selected_modalities=selected_modalities, label = 'valence', train_ratio=60, val_ratio=20, test_ratio=20)
 
     print_log("generating hypergraph")
     X = torch.tensor(X)
+    y = torch.tensor(y, dtype=torch.long)
     G = Hypergraph.from_feature_kNN(X, k=3)
+    X, lbl = torch.eye(G.num_v), y
+    train_mask = torch.tensor(train_mask)
+    val_mask = torch.tensor(val_mask)
+    test_mask = torch.tensor(test_mask)
+    n_classes = 2
 
-    X, lbl = torch.eye(G.num_v()), y
-    train_mask = data["train_mask"]
-    val_mask = data["val_mask"]
-    test_mask = data["test_mask"]
+    # X, lbl = torch.eye(data["num_vertices"]), data["labels"]
+    # G = Hypergraph(data["num_vertices"], data["edge_list"])
+    # train_mask = data["train_mask"]
+    # val_mask = data["val_mask"]
+    # test_mask = data["test_mask"]
+    # n_classes = data["num_classes"]
 
 
-
-    net = HGNN(X.shape[1], 32, data["num_classes"], use_bn=True)
+    net = HGNN(X.shape[1], 32, n_classes, use_bn=False)
     optimizer = optim.Adam(net.parameters(), lr=0.01, weight_decay=5e-4)
 
     X, lbl = X.to(device), lbl.to(device)
@@ -92,7 +95,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch):
 
 @torch.no_grad()
 def infer(net, X, A, lbls, idx, test=False):
-    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "micro"}}])
+    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "weighted"}}])
     net.eval()
     outs = net(X, A)
     outs, lbls = outs[idx], lbls[idx]

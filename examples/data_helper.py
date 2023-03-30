@@ -85,7 +85,7 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
 
     return X_train, X_test, y_train, y_test
 
-def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='valence'):
+def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20):
 
     n_subjects = 58
     n_cases = 36
@@ -141,27 +141,28 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'], train_ratio=80, label='val
         case_id = int(all_data[i][1])
         video_attributes[case_id]['attri_'+str(case_id)].append(i)
 
-    split_index = int((len(data_grouped))*train_ratio/100)
-    train = data_grouped[:split_index+1]
-    train = [item for sublist in train for item in sublist] # flatten
-    test = data_grouped[split_index:]
-    test = [item for sublist in test for item in sublist] # flatten
+    # split_index = int((len(data_grouped))*train_ratio/100)
+    # train = data_grouped[:split_index+1]
+    # train = [item for sublist in train for item in sublist] # flatten
+    # test = data_grouped[split_index:]
+    # test = [item for sublist in test for item in sublist] # flatten
         
-    X_train = np.asarray(train)[1:, 3:]
-    X_test = np.asarray(test)[1:, 3:]
-    y_train = np.asarray(train)[1:, label_index]
-    y_test = np.asarray(test)[1:, label_index]
+    X = all_data[1:, 3:]
+    y = all_data[1:, label_index]
 
-    scaler = StandardScaler()
-    lda = LinearDiscriminantAnalysis()
-    X_train = normalize(X_train)
-    X_test = normalize(X_test)
-    X_train = scaler.fit_transform(X_train, y_train)
-    X_test = scaler.transform(X_test)
-    X_train = lda.fit_transform(X_train, y_train)
-    X_test = lda.transform(X_test)
+    # X = normalize(X)
 
-    return X_train, X_test, y_train, y_test, subject_attributes, video_attributes
+    train_mask = [True for i in range(round(len(X)*train_ratio/100))] + [False for i in range(round(len(X)-len(X)*train_ratio/100))]
+    test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
+    valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
+    # scaler = StandardScaler()
+    # lda = LinearDiscriminantAnalysis()
+    # X_train = scaler.fit_transform(X_train, y_train)
+    # X_test = scaler.transform(X_test)
+    # X_train = lda.fit_transform(X_train, y_train)
+    # X_test = lda.transform(X_test)
+
+    return X, y, train_mask, test_mask, valid_mask, subject_attributes, video_attributes
 
 
 def is_column_feature(columns, column_index):
