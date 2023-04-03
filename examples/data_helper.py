@@ -87,7 +87,7 @@ def load_MSRGesture3D(i_train=2, i_test = 0):
 
 def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20):
 
-    random.seed(0)
+    # random.seed(0)
     
     n_subjects = 58
     n_cases = 36
