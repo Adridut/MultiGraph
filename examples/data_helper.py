@@ -127,11 +127,11 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     subject_attributes = []
     video_attributes = []
     for i in range(n_subjects):
-        subject_id = {'attri_'+str(i): []}
+        subject_id = []
         subject_attributes.append(subject_id)
 
     for i in range(n_cases):
-        video_id = {'attri_'+str(i): []}
+        video_id = []
         video_attributes.append(video_id)
 
     all_data = [item for sublist in data_grouped for item in sublist]
@@ -139,9 +139,9 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     
     for i in range(len(all_data[1:, 3:])):
         subject_id = int(all_data[i][0])
-        subject_attributes[subject_id]['attri_'+str(subject_id)].append(i)
+        subject_attributes[subject_id].append(i)
         case_id = int(all_data[i][1])
-        video_attributes[case_id]['attri_'+str(case_id)].append(i)
+        video_attributes[case_id].append(i)
 
     # split_index = int((len(data_grouped))*train_ratio/100)
     # train = data_grouped[:split_index+1]

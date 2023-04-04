@@ -107,29 +107,43 @@ from FusionLayer import FusionLayer
 #     print(res)
 #     print(w)
 
+def run_GHGNN():
+    pass
 
-def HGNNTrain(device, X, y, train_mask, test_mask, val_mask, sa ,va):
 
-    print_log("generating hypergraph")
-    G = Hypergraph.from_feature_kNN(X, k=3)
-    X, lbl = torch.eye(G.num_v), y
-    n_classes = 2
+def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers):
 
-    print(G.e_list)
+    hgnn_acc = []
+    for m in selected_modalities:
 
-    # Attribute HG
-    for a in sa:
-        print(a)
-        G.add_hyperedges(a)
+        print_log("loading data: " + str(m))
+        X, y, train_mask, test_mask, val_mask, sa, va = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X = torch.tensor(X).float()
+        y = torch.from_numpy(y).long()
+        train_mask = torch.tensor(train_mask)
+        val_mask = torch.tensor(val_mask)
+        test_mask = torch.tensor(test_mask)
 
-    for a in va:
-        G.add_hyperedges(a)
+        print_log("generating hypergraph: " + str(m))
+        G = Hypergraph.from_feature_kNN(X, k=3)
+        X, lbl = torch.eye(G.num_v), y
+        # Attribute HG
+        for a in sa:
+            G.add_hyperedges(a)
 
-    # attr_hg = concat_multi_hg(subject_attr_hg_list + video_attr_hg_list)
-    # G.add_hyperedges(attr_hg)
+        for a in va:
+            G.add_hyperedges(a)
 
-    print(X.shape)
-    net = HGNN(X.shape[1], 8, n_classes, use_bn=True)
+        net = HGNN(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
+        outs, res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net)
+        hgnn_acc.append(res["accuracy"])
+
+
+    print(hgnn_acc)
+
+
+def HGNNTrain(device, X, lbl, train_mask, test_mask, val_mask, G, net):
+
     optimizer = optim.Adam(net.parameters(), lr=0.0001, weight_decay=5e-4)
 
     X, lbl = X.to(device), lbl.to(device)
@@ -160,31 +174,31 @@ def HGNNTrain(device, X, y, train_mask, test_mask, val_mask, sa ,va):
     print(res)
     return all_outs, res
 
-def train_fusion(net, X, lbls, train_idx, optimizer, epoch, w):
-    net.train()
+# def train_fusion(net, X, lbls, train_idx, optimizer, epoch, w):
+#     net.train()
 
-    st = time.time()
-    optimizer.zero_grad()
-    outs, _ = net(X, w)
-    outs, lbls = outs[train_idx], lbls[train_idx]
-    loss = F.cross_entropy(outs, lbls)
-    loss.backward()
-    optimizer.step()
-    print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
-    return loss.item()
+#     st = time.time()
+#     optimizer.zero_grad()
+#     outs, _ = net(X, w)
+#     outs, lbls = outs[train_idx], lbls[train_idx]
+#     loss = F.cross_entropy(outs, lbls)
+#     loss.backward()
+#     optimizer.step()
+#     print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
+#     return loss.item()
 
 
-@torch.no_grad()
-def infer_fusion(net, X, lbls, idx, w, test=False):
-    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "weighted"}}])
-    net.eval()
-    all_outs, w = net(X, w)
-    outs, lbls = all_outs[idx], lbls[idx]
-    if not test:
-        res = evaluator.validate(lbls, outs)
-    else:
-        res = evaluator.test(lbls, outs)
-    return res, w
+# @torch.no_grad()
+# def infer_fusion(net, X, lbls, idx, w, test=False):
+#     evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "macro"}}])
+#     net.eval()
+#     all_outs, w = net(X, w)
+#     outs, lbls = all_outs[idx], lbls[idx]
+#     if not test:
+#         res = evaluator.validate(lbls, outs)
+#     else:
+#         res = evaluator.test(lbls, outs)
+#     return res, w
 
 def train(net, X, A, lbls, train_idx, optimizer, epoch):
     net.train()
@@ -202,7 +216,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch):
 
 @torch.no_grad()
 def infer(net, X, A, lbls, idx, test=False):
-    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "weighted"}}])
+    evaluator = Evaluator(["accuracy", "f1_score", {"f1_score": {"average": "macro"}}])
     net.eval()
     all_outs = net(X, A)
     outs, lbls = all_outs[idx], lbls[idx]
@@ -213,103 +227,21 @@ def infer(net, X, A, lbls, idx, test=False):
     return res, all_outs
 
 
-# def singleHG():
-#     print_log("loading data")
-#     selected_modalities=['ECG']
-#     X_train, X_test, y_train, y_test, _, _ = load_ASERTAIN(selected_modalities=selected_modalities, label = 'arousal', train_ratio=80)
-
-#     X = np.concatenate([X_train, X_test])
-#     y = np.concatenate([y_train, -1 * np.ones_like(y_test)])
-#     print(y)
-
-#     print_log("generating hypergraph")
-#     hg = gen_knn_hg(X, n_neighbors=25)
-
-#     print_log("learning on hypergraph")
-#     y_predict = trans_infer(hg, y, lbd=100)
-#     print_log("accuracy: {}".format(accuracy_score(y_test, y_predict)))
-#     print_log("f1: {}".format(f1_score(y_test, y_predict), average='weighted'))
-
-
-# def main():
-#     print_log("loading data")
-#     # selected_modalities=['ECG']
-#     selected_modalities=[['EEG'], ['GSR'], ['ECG'], ['EMO'], ['EEG', 'GSR'], ['EEG', 'ECG'], ['EEG', 'EMO']
-#                          , ['GSR', 'ECG'], ['GSR', 'EMO'], ['ECG', 'EMO'], ['EEG', 'GSR', 'ECG']
-#                          , ['EEG', 'GSR', 'EMO'], ['EEG', 'ECG', 'EMO'], ['GSR', 'ECG', 'EMO'], ['EEG', 'GSR', 'ECG', 'EMO']
-#                         ]
-#     all_X_train = []
-#     all_X_test = []
-#     for m in selected_modalities:
-#         X_train, X_test, y_train, y_test, subject_attributes, video_attributes = load_ASERTAIN(selected_modalities=m, label = 'valence', train_ratio=80)
-#         all_X_train.append(X_train)
-#         all_X_test.append(X_test)
-    
-
-#     X = [np.vstack((all_X_train[imod], all_X_test[imod])) for imod in range(len(selected_modalities))]
-#     y = np.concatenate((y_train, -1 * np.ones_like(y_test)))
-
-#     print_log("generating hypergraph")
-#     # Modality HG
-#     hg_list = [
-#         gen_knn_hg(X[imod], n_neighbors=25)
-#         for imod in range(len(selected_modalities))
-#     ]
-
-#     # Attribute HG
-#     subject_attr_hg_list = [
-#         gen_attribute_hg(X[0].shape[0], a)
-#         for a in subject_attributes
-#     ]
-#     video_attr_hg_list = [
-#         gen_attribute_hg(X[0].shape[0], a)
-#         for a in video_attributes
-#     ]
-#     attr_hg = concat_multi_hg(subject_attr_hg_list + video_attr_hg_list)
-
-#     # Mod + Attr HG
-#     hg_list = [concat_multi_hg([hg, attr_hg]) for hg in hg_list]
-
-#     print_log("learning on hypergraph")
-#     y_predict = multi_hg_weighting_trans_infer(hg_list, y, lbd=100, max_iter=10, mu=0.00000001)
-#     print_log("accuracy: {}".format(accuracy_score(y_test, y_predict)))
-#     print_log("f1: {}".format(f1_score(y_test, y_predict), average='weighted'))
-
-
-# def is_column_feature(columns, column_index):
-#     print(columns, column_index)
-#     return ('label' not in columns[column_index] and 'id' not in columns[column_index])
-
-
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-    print_log("loading data")
-    hgnn_features = []
-    hgnn_acc = []
-    features = []
-    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities=[['ECG'], ['EEG']]
-    for m in selected_modalities:
-        print_log(m)
-        X, y, train_mask, test_mask, val_mask, sa, va = load_ASERTAIN(selected_modalities=m, label = 'valence', train_ratio=80, val_ratio=10, test_ratio=10)
-        X = torch.tensor(X).float()
-        y = torch.from_numpy(y).long()
-        train_mask = torch.tensor(train_mask)
-        val_mask = torch.tensor(val_mask)
-        test_mask = torch.tensor(test_mask)
-        outs, res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, sa, va)
-    #     hgnn_features.append(outs)
-    #     hgnn_acc.append(res["f1_score"])
-    #     features.append(X)
+    selected_modalities=[['ECG'], ['EEG']]
+    label = "arousal"
+    train_ratio = 80
+    val_ratio = 10
+    test_ratio = 10
+    n_classes = 2
+    n_hidden_layers = 8
 
+    run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers)
 
-    # multiHGNNTrain(device, features, y, train_mask, test_mask, val_mask)
-
-    # fusion(hgnn_features, y, train_mask, val_mask, test_mask, hgnn_acc)
-    print(hgnn_acc)
 
 
 
