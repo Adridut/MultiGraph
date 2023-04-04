@@ -19,7 +19,7 @@ import torch.nn.functional as F
 
 from dhg import Hypergraph
 from dhg.data import Cooking200
-from dhg.models import HGNN
+from dhg.models import HGNN, HGNNP
 from multihgnn import MultiHGNN
 from dhg.random import set_seed
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
@@ -107,8 +107,40 @@ from FusionLayer import FusionLayer
 #     print(res)
 #     print(w)
 
-def run_GHGNN():
-    pass
+def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers):
+
+    first_HG = True
+    G = Hypergraph
+
+    for m in selected_modalities:
+
+        print_log("loading data: " + str(m))
+        X, y, train_mask, test_mask, val_mask, sa, va = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X = torch.tensor(X).float()
+        y = torch.from_numpy(y).long()
+        train_mask = torch.tensor(train_mask)
+        val_mask = torch.tensor(val_mask)
+        test_mask = torch.tensor(test_mask)
+
+        print_log("generating hypergraph: " + str(m))
+        if first_HG:
+            G = Hypergraph.from_feature_kNN(X, k=3)
+            first_HG = False
+        else:
+            G.add_hyperedges_from_feature_kNN(X, k=3, group_name=str(m))
+
+        X, lbl = torch.eye(G.num_v), y
+
+
+    # Attribute HG
+    for a in sa:
+        G.add_hyperedges(a, group_name="subject_attributes")
+
+    for a in va:
+        G.add_hyperedges(a, group_name="video_attributes")
+
+    net = HGNNP(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
+    outs, res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net)
 
 
 def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers):
@@ -152,7 +184,7 @@ def HGNNTrain(device, X, lbl, train_mask, test_mask, val_mask, G, net):
 
     best_state = None
     best_epoch, best_val = 0, 0
-    for epoch in range(200):
+    for epoch in range(2000):
         # train
         train(net, X, G, lbl, train_mask, optimizer, epoch)
         # validation
@@ -230,9 +262,9 @@ def infer(net, X, A, lbls, idx, test=False):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities=[['ECG'], ['EEG']]
+    # selected_modalities=[['ECG'], ['EEG']]
     label = "arousal"
     train_ratio = 80
     val_ratio = 10
@@ -240,7 +272,7 @@ if __name__ == "__main__":
     n_classes = 2
     n_hidden_layers = 8
 
-    run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers)
+    run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers)
 
 
 
