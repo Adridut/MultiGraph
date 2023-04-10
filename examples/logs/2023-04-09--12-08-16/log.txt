@@ -1,0 +1,56 @@
+[INFO 2023-04-09 12:08:16,238]-> Logs will be saved to D:\Dev\THU-HyperG\examples\logs\2023-04-09--12-08-16\log.txt
+[INFO 2023-04-09 12:08:16,238]-> Files in training will be saved in D:\Dev\THU-HyperG\examples\logs\2023-04-09--12-08-16
+[INFO 2023-04-09 12:08:16,239]-> Random seed is 1681009696
+[INFO 2023-04-09 12:08:16,247]-> A new study created in memory with name: no-name-cbd502b0-afe5-4c94-bfa1-02819316e2f0
+[INFO 2023-04-09 12:08:18,428]-> Trial 0 finished with value: 0.7224880456924438 and parameters: {'k': 4, 'hidden_dim': 8, 'lr': 0.0003444220172444959, 'weight_decay': 0.00022673552138338218}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:08:24,468]-> Trial 1 finished with value: 0.7129186391830444 and parameters: {'k': 3, 'hidden_dim': 71, 'lr': 0.0012380489149610924, 'weight_decay': 0.0005082773940101831}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:08:34,983]-> Trial 2 finished with value: 0.7129186391830444 and parameters: {'k': 22, 'hidden_dim': 64, 'lr': 0.0018894837487232266, 'weight_decay': 0.009151015861936437}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:08:44,464]-> Trial 3 finished with value: 0.6842105388641357 and parameters: {'k': 10, 'hidden_dim': 86, 'lr': 0.0023952404619923106, 'weight_decay': 0.0025501668998981707}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:08:54,416]-> Trial 4 finished with value: 0.7129186391830444 and parameters: {'k': 23, 'hidden_dim': 52, 'lr': 0.0003600546182650621, 'weight_decay': 0.009406147299996732}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:09:00,322]-> Trial 5 finished with value: 0.7129186391830444 and parameters: {'k': 4, 'hidden_dim': 59, 'lr': 0.004813187436754024, 'weight_decay': 0.0006617070312778816}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:09:06,943]-> Trial 6 finished with value: 0.7129186391830444 and parameters: {'k': 10, 'hidden_dim': 45, 'lr': 0.00046633273416773883, 'weight_decay': 0.009263791303778277}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:09:07,097]-> Trial 7 pruned. 
+[INFO 2023-04-09 12:09:26,729]-> Trial 8 finished with value: 0.7129186391830444 and parameters: {'k': 23, 'hidden_dim': 127, 'lr': 0.00020216863129976707, 'weight_decay': 0.0005312133949765373}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:09:26,839]-> Trial 9 pruned. 
+[INFO 2023-04-09 12:09:30,671]-> Trial 10 finished with value: 0.7129186391830444 and parameters: {'k': 12, 'hidden_dim': 7, 'lr': 0.00010711607007717722, 'weight_decay': 0.00012671131017423306}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:09:30,752]-> Trial 11 pruned. 
+[INFO 2023-04-09 12:09:33,187]-> Trial 12 pruned. 
+[INFO 2023-04-09 12:09:33,268]-> Trial 13 pruned. 
+[INFO 2023-04-09 12:09:33,500]-> Trial 14 pruned. 
+[INFO 2023-04-09 12:09:33,565]-> Trial 15 pruned. 
+[INFO 2023-04-09 12:09:33,694]-> Trial 16 pruned. 
+[INFO 2023-04-09 12:16:08,839]-> Trial 17 finished with value: 0.7129186391830444 and parameters: {'k': 1, 'hidden_dim': 107, 'lr': 0.0007785943383111042, 'weight_decay': 0.0011583547654381934}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:08,919]-> Trial 18 pruned. 
+[INFO 2023-04-09 12:16:09,026]-> Trial 19 pruned. 
+[INFO 2023-04-09 12:16:09,114]-> Trial 20 pruned. 
+[INFO 2023-04-09 12:16:21,285]-> Trial 21 finished with value: 0.7129186391830444 and parameters: {'k': 27, 'hidden_dim': 63, 'lr': 0.0017574032050064643, 'weight_decay': 0.0015668555256817794}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:32,662]-> Trial 22 finished with value: 0.7129186391830444 and parameters: {'k': 18, 'hidden_dim': 77, 'lr': 0.0018655900376923662, 'weight_decay': 0.0008503893715929311}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:42,147]-> Trial 23 finished with value: 0.7129186391830444 and parameters: {'k': 19, 'hidden_dim': 52, 'lr': 0.001235888126668354, 'weight_decay': 0.00046298355305204257}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:42,337]-> Trial 24 pruned. 
+[INFO 2023-04-09 12:16:52,782]-> Trial 25 finished with value: 0.7129186391830444 and parameters: {'k': 9, 'hidden_dim': 99, 'lr': 0.0010528998497086725, 'weight_decay': 0.001953251195380282}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:52,892]-> Trial 26 pruned. 
+[INFO 2023-04-09 12:16:52,965]-> Trial 27 pruned. 
+[INFO 2023-04-09 12:16:53,104]-> Trial 28 pruned. 
+[INFO 2023-04-09 12:16:56,879]-> Trial 29 finished with value: 0.7129186391830444 and parameters: {'k': 9, 'hidden_dim': 11, 'lr': 0.002498337430203149, 'weight_decay': 0.0025316643478434445}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:16:57,085]-> Trial 30 pruned. 
+[INFO 2023-04-09 12:16:57,265]-> Trial 31 pruned. 
+[INFO 2023-04-09 12:16:57,498]-> Trial 32 pruned. 
+[INFO 2023-04-09 12:17:06,431]-> Trial 33 finished with value: 0.7129186391830444 and parameters: {'k': 21, 'hidden_dim': 48, 'lr': 0.00042616546669843803, 'weight_decay': 0.005689049987976562}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:17:06,611]-> Trial 34 pruned. 
+[INFO 2023-04-09 12:17:06,734]-> Trial 35 pruned. 
+[INFO 2023-04-09 12:17:11,193]-> Trial 36 finished with value: 0.7129186391830444 and parameters: {'k': 11, 'hidden_dim': 24, 'lr': 0.0004591426267924085, 'weight_decay': 0.009910272802684288}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:17:14,207]-> Trial 37 finished with value: 0.7177033424377441 and parameters: {'k': 3, 'hidden_dim': 15, 'lr': 0.00026139450536277715, 'weight_decay': 0.008241760013361}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:17:14,260]-> Trial 38 pruned. 
+[INFO 2023-04-09 12:17:14,322]-> Trial 39 pruned. 
+[INFO 2023-04-09 12:19:44,542]-> Trial 40 finished with value: 0.7129186391830444 and parameters: {'k': 1, 'hidden_dim': 2, 'lr': 0.00015319208371347443, 'weight_decay': 0.005922930732524694}. Best is trial 0 with value: 0.7224880456924438.
+[INFO 2023-04-09 12:19:44,614]-> Best trial:
+[INFO 2023-04-09 12:19:44,616]-> 	Value: 0.722
+[INFO 2023-04-09 12:19:44,617]-> 	Params:
+[INFO 2023-04-09 12:19:44,618]-> 		k |-> 4
+[INFO 2023-04-09 12:19:44,618]-> 		hidden_dim |-> 8
+[INFO 2023-04-09 12:19:44,619]-> 		lr |-> 0.0003444220172444959
+[INFO 2023-04-09 12:19:44,620]-> 		weight_decay |-> 0.00022673552138338218
+[INFO 2023-04-09 12:19:44,638]-> Final test results:
+[INFO 2023-04-09 12:19:44,638]-> 	accuracy |-> 0.703
+[INFO 2023-04-09 12:19:44,640]-> 	f1_score |-> 0.428
+HGNN ECG arousal

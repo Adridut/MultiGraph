@@ -14,6 +14,8 @@ import csv
 from itertools import groupby
 import random
 
+
+
 # random.seed(0)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
@@ -93,9 +95,9 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     n_cases = 36
 
     if label == 'valence':
-        label_index = 2
-    elif label == 'arousal':
         label_index = 3
+    elif label == 'arousal':
+        label_index = 2
 
     dir = os.path.join(DATA_DIR, "ASCERTAIN_Features")
     """
@@ -111,8 +113,11 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     case_id_index = np.where(columns == 'case_id')[0][0]
 
     # select modality
+    selected_modalities.append('Personality')
+    
     selected_index = [i for i in range(len(columns)) 
-							if (not is_column_feature(columns, i)) or (is_column_feature(columns, i) and (columns[i].split('_')[0] in selected_modalities)) ]
+							if (not is_column_feature(columns, i)) or ((is_column_feature(columns, i) and (columns[i].split('_')[0] in selected_modalities))) ]
+    
     data = data[:,selected_index]
     # columns = [columns[i] for i in selected_index if i < 4]
 
@@ -124,8 +129,12 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     data_grouped = [list(it) for k, it in groupby(data.tolist())]
     random.shuffle(data_grouped)
 
+
     subject_attributes = []
     video_attributes = []
+    low_personality_attributes = []
+    high_personality_attributes = []
+
     for i in range(n_subjects):
         subject_id = []
         subject_attributes.append(subject_id)
@@ -134,14 +143,32 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
         video_id = []
         video_attributes.append(video_id)
 
+    # 5 = number of personality traits
+    for i in range(5):
+        personality_id = []
+        low_personality_attributes.append(personality_id)
+
+    for i in range(5):
+        personality_id = []
+        high_personality_attributes.append(personality_id)
+
+
     all_data = [item for sublist in data_grouped for item in sublist]
     all_data = np.asarray(all_data)
     
-    for i in range(len(all_data[1:, 3:])):
+
+    for i in range(len(all_data[0:, 4:])):
         subject_id = int(all_data[i][0])
         subject_attributes[subject_id].append(i)
         case_id = int(all_data[i][1])
         video_attributes[case_id].append(i)
+        for j in range(len(low_personality_attributes)):
+            personality_trait = all_data[i][all_data.shape[1]-j-1]
+            if personality_trait < 5:
+                low_personality_attributes[j].append(i)
+            else:
+                high_personality_attributes[j].append(i)
+
 
     # split_index = int((len(data_grouped))*train_ratio/100)
     # train = data_grouped[:split_index+1]
@@ -149,22 +176,29 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     # test = data_grouped[split_index:]
     # test = [item for sublist in test for item in sublist] # flatten
         
-    X = all_data[1:, 3:]
-    y = all_data[1:, label_index]
+    # remove ids, labels and personalities from features
+    X = all_data[0:, 4:all_data.shape[1]-5]
+    y = all_data[0:, label_index]
 
     X = normalize(X)
 
     train_mask = [True for i in range(round(len(X)*train_ratio/100))] + [False for i in range(round(len(X)-len(X)*train_ratio/100))]
     test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
-    # scaler = StandardScaler()
-    # lda = LinearDiscriminantAnalysis()
-    # X_train = scaler.fit_transform(X_train, y_train)
-    # X_test = scaler.transform(X_test)
-    # X_train = lda.fit_transform(X_train, y_train)
-    # X_test = lda.transform(X_test)
 
-    return X, y, train_mask, test_mask, valid_mask, subject_attributes, video_attributes
+    scaler = StandardScaler()
+    lda = LinearDiscriminantAnalysis()
+
+    X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = scaler.fit_transform(X[valid_mask])
+    X[test_mask] = scaler.fit_transform(X[test_mask])
+
+    X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = lda.transform(X[valid_mask])
+    X[test_mask] = lda.transform(X[test_mask])
+
+
+    return X, y, train_mask, test_mask, valid_mask, subject_attributes, video_attributes, low_personality_attributes, high_personality_attributes
 
 
 def is_column_feature(columns, column_index):

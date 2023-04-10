@@ -1,8 +1,10 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
 
 from dhg.structure.hypergraphs import Hypergraph
+
+import torch
+import torch.nn as nn
+
 
 
 class HGNNConv(nn.Module):
