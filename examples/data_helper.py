@@ -170,6 +170,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
                 high_personality_attributes[j].append(i)
 
 
+    selected_modalities.remove('Personality')
     # split_index = int((len(data_grouped))*train_ratio/100)
     # train = data_grouped[:split_index+1]
     # train = [item for sublist in train for item in sublist] # flatten
@@ -186,16 +187,16 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
-    scaler = StandardScaler()
-    lda = LinearDiscriminantAnalysis()
+    # scaler = StandardScaler()
+    # lda = LinearDiscriminantAnalysis()
 
-    X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = scaler.fit_transform(X[valid_mask])
-    X[test_mask] = scaler.fit_transform(X[test_mask])
+    # X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
+    # X[valid_mask] = scaler.fit_transform(X[valid_mask])
+    # X[test_mask] = scaler.fit_transform(X[test_mask])
 
-    X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = lda.transform(X[valid_mask])
-    X[test_mask] = lda.transform(X[test_mask])
+    # X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
+    # X[valid_mask] = lda.transform(X[valid_mask])
+    # X[test_mask] = lda.transform(X[test_mask])
 
 
     return X, y, train_mask, test_mask, valid_mask, subject_attributes, video_attributes, low_personality_attributes, high_personality_attributes

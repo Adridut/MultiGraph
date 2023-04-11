@@ -155,7 +155,7 @@ def run_NB(selected_modalities, label, train_ratio, val_ratio, test_ratio):
     acc = 0
     f1 = 0
     for i in range(10):
-        X, y, _, _, _, _, _ = load_ASERTAIN(selected_modalities[0], label, train_ratio, val_ratio, test_ratio)
+        X, y, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities[0], label, train_ratio, val_ratio, test_ratio)
         gnb = svm.SVC()
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=11)
         y_pred = gnb.fit(X_train, y_train).predict(X_test)
@@ -185,11 +185,17 @@ def structure_builder(trial):
             
         i += 1
 
-    # for a in sa:
-    #     G.add_hyperedges(a, group_name="subject_attributes")
+    for a in sa:
+        G.add_hyperedges(a, group_name="subject_attributes")
 
-    # for a in va:
-    #     G.add_hyperedges(a, group_name="video_attributes")
+    for a in va:
+        G.add_hyperedges(a, group_name="video_attributes")
+
+    for a in lpa:
+        G.add_hyperedges(a, group_name="low_personality_attributes")
+
+    for a in hpa:
+        G.add_hyperedges(a, group_name="high_personality_attributes")
 
     return G
 
@@ -202,8 +208,8 @@ def model_builder(trial):
 def train_builder(trial, model):
     optimizer = optim.Adam(
         model.parameters(),
-        lr=trial.suggest_loguniform("lr", 1e-4, 1e-2),
-        weight_decay=trial.suggest_loguniform("weight_decay", 1e-4, 1e-2),
+        lr=trial.suggest_float("lr", 1e-4, 1e-2),
+        weight_decay=trial.suggest_float("weight_decay", 1e-4, 1e-2),
     )
     criterion = nn.CrossEntropyLoss()
     return {
@@ -211,16 +217,14 @@ def train_builder(trial, model):
         "criterion": criterion,
     }
 
-def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay):
+def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch):
 
-    global Xs 
-    global va
-    global sa
+    global va, sa, lpa, hpa, Xs
     Xs = []
     for m in selected_modalities:
 
         print_log("loading data: " + str(m))
-        X, y, train_mask, test_mask, val_mask, sa, va = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
         X = torch.tensor(X).float()
         y = torch.from_numpy(y).long()
         train_mask = torch.tensor(train_mask)
@@ -246,6 +250,12 @@ def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_r
     for a in va:
         G.add_hyperedges(a, group_name="video_attributes")
 
+    for a in lpa:
+        G.add_hyperedges(a, group_name="low_personality_attributes")
+
+    for a in hpa:
+        G.add_hyperedges(a, group_name="high_personality_attributes")
+
     input_data = {
         "features": X,
         "labels": lbl,
@@ -258,15 +268,18 @@ def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_r
 
     work_root = "D:\Dev\THU-HyperG\examples\logs"
 
-    task = Task(
-        work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
-    )
+    # task = Task(
+    #     work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
+    # )
 
-    task.run(200, 50, "maximize")
+    # task.run(200, 50, "maximize")
 
-    # net = HGNNP(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
-    # outs, res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay)
-    # return res
+    net = HGNNP(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
+    res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
+    acc = res["accuracy"]
+    f1 = res["f1_score"]
+
+    return acc, f1
 
 
 def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch):
@@ -304,7 +317,7 @@ def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ra
             G.add_hyperedges(a, group_name="high_personality_attributes")
 
         net = HGNN(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
-        out, res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
+        res, out = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
         hgnn_acc.append(res["accuracy"])
         hgnn_f1.append(res["f1_score"])
         outs.append(out)
@@ -343,7 +356,7 @@ def HGNNTrain(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weig
     res, all_outs = infer(net, X, G, lbl, test_mask, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
-    return all_outs, res
+    return res, all_outs
 
 
 def train(net, X, A, lbls, train_idx, optimizer, epoch):
@@ -380,7 +393,7 @@ if __name__ == "__main__":
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 80
     val_ratio = 10
     test_ratio = 10
@@ -389,6 +402,8 @@ if __name__ == "__main__":
     # k = 14
     # n_hidden_layers = 17
     # k = 27
+    # n_hidden_layers = 85
+    # k = 29
     n_hidden_layers = 8
     k = 4
     lr = 0.001
@@ -401,11 +416,19 @@ if __name__ == "__main__":
     # run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay)
     
     
-    acc = 0
-    f1 = 0
+    accs = 0
+    f1s = 0
     trials = 10
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
+
+    # for i in range(trials):
+    #     acc, f1 = run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch)
+    #     accs += acc 
+    #     f1s += f1
+
+    # print("acc: ", accs/trials)
+    # print("f1: ", f1s/trials)
 
     for i in range(trials):
         out, y, all_acc, all_f1 = run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch)
@@ -418,14 +441,14 @@ if __name__ == "__main__":
         out = F.softmax(out, dim=1)
         out = torch.argmax(out, axis=1)
 
-        acc += accuracy_score(y, out)
-        f1 += f1_score(y, out, average="macro")
+        accs += accuracy_score(y, out)
+        f1s += f1_score(y, out, average="macro")
         all_accs = [sum(x) for x in zip(all_accs, all_acc)]
         all_f1s = [sum(x) for x in zip(all_f1s, all_f1)]
 
 
-    print("accuracy: ", acc/trials)
-    print("f1: ", f1/trials)
+    print("accuracy: ", accs/trials)
+    print("f1: ", f1s/trials)
     print("all_accs: ", [x/trials for x in all_accs])
     print("all_f1s: ", [x/trials for x in all_f1s])
 
