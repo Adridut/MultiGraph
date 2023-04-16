@@ -23,6 +23,7 @@ from dhg.models import HGNN, HGNNP, UniSAGE, UniGAT, HyperGCN, HNHN
 from multihgnn import MultiHGNN
 from dhg.random import set_seed
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
+from dhg.utils import remap_edge_lists, edge_list_to_adj_list
 
 from numpy import array
 from numpy import argmax
@@ -39,6 +40,9 @@ from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import classification_report, accuracy_score, f1_score
 import statistics
+
+from dhgnn import DHGNN
+import matplotlib.pyplot as plt
 
 
 
@@ -274,8 +278,8 @@ def run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_r
 
     # task.run(200, 50, "maximize")
 
-    net = HGNNP(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
-    res = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
+    net = HGNN(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
+    res, out = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
     acc = res["accuracy"]
     f1 = res["f1_score"]
 
@@ -307,15 +311,37 @@ def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ra
         for a in sa:
             G.add_hyperedges(a, group_name="subject_attributes")
 
+
         for a in va:
             G.add_hyperedges(a, group_name="video_attributes")
-        
+
+
         for a in lpa:
             G.add_hyperedges(a, group_name="low_personality_attributes")
+
 
         for a in hpa:
             G.add_hyperedges(a, group_name="high_personality_attributes")
 
+
+        
+
+
+        # net = DHGNN(dim_feat=X.shape[1],
+        # n_categories=n_classes,
+        # k_structured=128,
+        # k_nearest=64,
+        # k_cluster=64,
+        # wu_knn=0,
+        # wu_kmeans=10,
+        # wu_struct=5,
+        # clusters=400,
+        # adjacent_centers=1,
+        # n_layers=2,
+        # layer_spec=[256],
+        # dropout_rate=0.5,
+        # has_bias=True
+        # )
         net = HGNN(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
         res, out = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch)
         hgnn_acc.append(res["accuracy"])
@@ -323,7 +349,7 @@ def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ra
         outs.append(out)
 
 
-    return outs, y, hgnn_acc, hgnn_f1
+    return outs, y, hgnn_acc, hgnn_f1, test_mask
 
 
 def HGNNTrain(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch):
@@ -365,6 +391,10 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch):
     st = time.time()
     optimizer.zero_grad()
     outs = net(X, A)
+    # ids = [i for i in range(2088) if train_idx[i]]
+    # outs = net(ids=ids, feats=X, G=A, edge_dict=A.nbr_e, ite=epoch)
+    # lbls = lbls[train_idx]
+    # print(A.nbr_e)
     outs, lbls = outs[train_idx], lbls[train_idx]
     loss = F.cross_entropy(outs, lbls)
     loss.backward()
@@ -377,23 +407,26 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch):
 def infer(net, X, A, lbls, idx, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
-    all_outs = net(X, A)
-    outs, lbls = all_outs[idx], lbls[idx]
+    outs = net(X, A)
+    # ids = [i for i in range(2088) if idx[i]]
+    # outs = net(ids=ids, feats=X, G=A, edge_dict=A.nbr_e, ite=epoch)
+    # lbls = lbls[idx]
+    outs, lbls = outs[idx], lbls[idx]
     if not test:
         res = evaluator.validate(lbls, outs)
     else:
         res = evaluator.test(lbls, outs)
-    return res, all_outs
+    return res, outs
 
 
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['EMO'], ['EEG'], ['GSR'], ['EMO']]
+    selected_modalities = [['ECG'], ['EEG'], ['GSR'], ['EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
-    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
-    label = "arousal"
+    label = "valence"
     train_ratio = 80
     val_ratio = 10
     test_ratio = 10
@@ -406,8 +439,12 @@ if __name__ == "__main__":
     # k = 29
     n_hidden_layers = 8
     k = 4
-    lr = 0.001
-    weight_decay = 0.001
+    # lr = 0.001
+    # weight_decay = 0.001
+    # n_hidden_layers = 128
+    # k = 64
+    lr = 0.01
+    weight_decay = 0.0005
     epoch = 200
 
 
@@ -418,11 +455,12 @@ if __name__ == "__main__":
     
     accs = 0
     f1s = 0
-    trials = 10
+    trials = 5
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
 
     # for i in range(trials):
+    #     print("trial: ", i)
     #     acc, f1 = run_GHGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch)
     #     accs += acc 
     #     f1s += f1
@@ -431,7 +469,8 @@ if __name__ == "__main__":
     # print("f1: ", f1s/trials)
 
     for i in range(trials):
-        out, y, all_acc, all_f1 = run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch)
+        print("trial: ", i)
+        out, y, all_acc, all_f1, test_mask = run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch)
         out = torch.stack(out)
 
         for i in range(len(all_f1)):
@@ -441,8 +480,9 @@ if __name__ == "__main__":
         out = F.softmax(out, dim=1)
         out = torch.argmax(out, axis=1)
 
-        accs += accuracy_score(y, out)
-        f1s += f1_score(y, out, average="macro")
+
+        accs += accuracy_score(y[test_mask], out)
+        f1s += f1_score(y[test_mask], out, average="macro")
         all_accs = [sum(x) for x in zip(all_accs, all_acc)]
         all_f1s = [sum(x) for x in zip(all_f1s, all_f1)]
 

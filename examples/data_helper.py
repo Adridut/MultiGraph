@@ -164,7 +164,11 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
         video_attributes[case_id].append(i)
         for j in range(len(low_personality_attributes)):
             personality_trait = all_data[i][all_data.shape[1]-j-1]
-            if personality_trait < 5:
+            if j == 0 or j == 3:
+                threshold = 4
+            else:
+                threshold = 5
+            if personality_trait < threshold:
                 low_personality_attributes[j].append(i)
             else:
                 high_personality_attributes[j].append(i)
