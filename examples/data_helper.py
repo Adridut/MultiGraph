@@ -185,18 +185,19 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     X = all_data[0:, 4:all_data.shape[1]-5]
     y = all_data[0:, label_index]
 
+    X = np.nan_to_num(X)
     X = normalize(X)
 
     train_mask = [True for i in range(round(len(X)*train_ratio/100))] + [False for i in range(round(len(X)-len(X)*train_ratio/100))]
     test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
-    # scaler = StandardScaler()
+    scaler = StandardScaler()
     # lda = LinearDiscriminantAnalysis()
 
-    # X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
-    # X[valid_mask] = scaler.fit_transform(X[valid_mask])
-    # X[test_mask] = scaler.fit_transform(X[test_mask])
+    X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = scaler.fit_transform(X[valid_mask])
+    X[test_mask] = scaler.fit_transform(X[test_mask])
 
     # X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
     # X[valid_mask] = lda.transform(X[valid_mask])
