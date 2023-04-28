@@ -1,13 +1,8 @@
 # coding=utf-8
 import numpy as np
-from sklearn.metrics import accuracy_score, f1_score
-
-from hyperg.generation import gen_knn_hg, gen_attribute_hg, concat_multi_hg, fuse_mutli_sub_hg, gen_clustering_hg
-from hyperg.learning import trans_infer, multi_hg_trans_infer, multi_hg_weighting_trans_infer, tensor_hg_trans_infer
 from hyperg.utils import print_log
 
 from data_helper import load_ASERTAIN
-
 
 import time
 from copy import deepcopy
@@ -17,18 +12,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from dhg import Hypergraph
-from dhg.data import Cooking200
-from dhg.models import HGNN, HGNNP, UniSAGE, UniGAT, HyperGCN, HNHN
-from multihgnn import MultiHGNN
-from dhg.random import set_seed
+from dhg.models import HGNN, HGNNP
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
-from dhg.utils import remap_edge_lists, edge_list_to_adj_list
-
-from numpy import array
-from numpy import argmax
-from numpy import tensordot
-
-from FusionLayer import FusionLayer
 
 from dhg.experiments import HypergraphVertexClassificationTask as Task
 import torch.nn as nn
@@ -38,10 +23,11 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import classification_report, accuracy_score, f1_score
-import statistics
 
 from dhgnn import DHGNN
 import matplotlib.pyplot as plt
+
+from fc import FC
 
 
 def run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, model, trials):
@@ -146,7 +132,7 @@ def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ra
     return outs, y, hgnn_acc, hgnn_f1, test_mask
 
 
-def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch, model):
+def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, model):
 
     optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
 
@@ -156,7 +142,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
 
     best_state = None
     best_epoch, best_val = 0, 0
-    for epoch in range(epoch):
+    for epoch in range(n_epoch):
         # train
         train(net, X, G, lbl, train_mask, optimizer, epoch, model)
         # validation
@@ -190,6 +176,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model):
     else:
         outs = net(X, A)
         outs, lbls = outs[train_idx], lbls[train_idx]
+
     loss = F.cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
@@ -206,14 +193,37 @@ def infer(net, X, A, lbls, idx, model, test=False):
         outs = net(ids=ids, feats=X, G=A, edge_dict=A.nbr_e, ite=epoch)
         lbls = lbls[idx]
     else:
-        outs = net(X, A)
-        outs, lbls = outs[idx], lbls[idx]
+        all_outs = net(X, A)
+        outs, lbls = all_outs[idx], lbls[idx]
     if not test:
         res = evaluator.validate(lbls, outs)
     else:
         res = evaluator.test(lbls, outs)
-    return res, outs
+    return res, all_outs
 
+def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask):
+    X = torch.tensor(X).float()
+    X = X.permute(1, 0)
+    net = FC(X.size()[1], n_classes)
+    optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
+
+    for epoch in range(n_epoch):
+        # Vorhersage berechnen
+        outputs = net(X)
+
+        # Fehler berechnen
+        loss = F.cross_entropy(outputs[~test_mask], y[~test_mask])
+
+        # Anpassung der Gewichte
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    output = net(X)
+    evaluator = Evaluator(["accuracy", "f1_score"])
+    res = evaluator.test(y[test_mask], output[test_mask])
+
+    return res
 
 def select_model(feat_dimension, n_hidden_layers, n_classes, model):
         if model == "HGNN":
@@ -240,6 +250,8 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
 
 def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
     G = Hypergraph.from_feature_kNN(X, k=k)
+    print(G.num_e)
+    print(G.num_v)
     if use_attributes:
         for a in sa:
             G.add_hyperedges(a, group_name="subject_attributes")
@@ -254,7 +266,7 @@ def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['GSR'], ['EMO']]
+    selected_modalities = [['ECG'], ['EEG']]
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EEG', 'GSR']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
@@ -269,16 +281,17 @@ if __name__ == "__main__":
     k = 4 #4, 20
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4
-    epoch = 20
+    n_epoch = 1
     model = "HGNN"
     n_nodes = 2088
 
 
-    accs = 0
-    f1s = 0
-    trials = 3
+    final_acc = 0
+    final_f1 = 0
+    trials = 1
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
+    inputs = []
 
 
     # run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "NB", trials)
@@ -307,13 +320,22 @@ if __name__ == "__main__":
             X = X.to(device)
             y = y.to(device)
 
-            res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, epoch, model)
+            res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
             all_accs[i] += res['accuracy']
             all_f1s[i] += res['f1_score']
+            inputs.append([np.argmax(o) for o in out])
             i += 1
+
+
+        final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
+        final_acc += final_res['accuracy']
+        final_f1 += final_res['f1_score']
 
     print("acc: ", np.divide(all_accs,trials))
     print("f1: ", np.divide(all_f1s,trials))
+    print(selected_modalities)
+    print("final acc: ", final_acc/trials)
+    print("final f1: ", final_f1/trials)
 
     
 
