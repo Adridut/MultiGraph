@@ -203,15 +203,15 @@ if __name__ == "__main__":
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     label = "valence"
-    train_ratio = 90
-    val_ratio = 5
-    test_ratio = 5
+    train_ratio = 80
+    val_ratio = 10
+    test_ratio = 10
     n_classes = 2
     n_hidden_layers = 8
     k = 4 #4, 20
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4
-    n_epoch = 200
+    n_epoch = 1000
     model = "HGNN"
     n_nodes = 2088
     fuse_models = False
