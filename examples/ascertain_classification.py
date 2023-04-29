@@ -177,24 +177,24 @@ def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
     G = Hypergraph(X.size()[0])
     G.add_hyperedges_from_feature_kNN(X, k=k)
 
-    if use_attributes:
-        for a in sa:
-            G.add_hyperedges(a, group_name="subject_attributes")
-        for a in va:
-            G.add_hyperedges(a, group_name="video_attributes")
-        for a in lpa:
-            G.add_hyperedges(a, group_name="low_personality_attributes")
-        for a in hpa:
-            G.add_hyperedges(a, group_name="high_personality_attributes")
+    # if use_attributes:
+    #     for a in sa:
+    #         G.add_hyperedges(a, group_name="subject_attributes")
+    #     for a in va:
+    #         G.add_hyperedges(a, group_name="video_attributes")
+    #     for a in lpa:
+    #         G.add_hyperedges(a, group_name="low_personality_attributes")
+    #     for a in hpa:
+    #         G.add_hyperedges(a, group_name="high_personality_attributes")
     return G
 
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['GSR'], ['EMO']]
-    # selected_modalities = [['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['GSR'], ['EMO']]
+    # selected_modalities = [['EMO']]
     # selected_modalities = [['ECG', 'EEG', 'GSR']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     label = "valence"
@@ -220,52 +220,52 @@ if __name__ == "__main__":
     inputs = []
 
 
-    run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "SVM", trials)
+    run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "NB", trials)
 
 
-    model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model)
-    for trial in range(trials):
-        print_log("trial: " + str(trial))
-        i = 0
-        for m in selected_modalities:
+    # model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model)
+    # for trial in range(trials):
+    #     print_log("trial: " + str(trial))
+    #     i = 0
+    #     for m in selected_modalities:
 
-            print_log("loading data: " + str(m))
-            X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+    #         print_log("loading data: " + str(m))
+    #         X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
             
-            X = torch.tensor(X).float()
-            y = torch.from_numpy(y).long()
-            train_mask = torch.tensor(train_mask)
-            val_mask = torch.tensor(val_mask)
-            test_mask = torch.tensor(test_mask)
+    #         X = torch.tensor(X).float()
+    #         y = torch.from_numpy(y).long()
+    #         train_mask = torch.tensor(train_mask)
+    #         val_mask = torch.tensor(val_mask)
+    #         test_mask = torch.tensor(test_mask)
 
-            print_log("generating hypergraph: " + str(m))
-            G = generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes=True)
-            X = torch.eye(G.num_v)
+    #         print_log("generating hypergraph: " + str(m))
+    #         G = generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes=True)
+    #         X = torch.eye(G.num_v)
 
-            G.to(device)
-            X = X.to(device)
-            y = y.to(device)
+    #         G.to(device)
+    #         X = X.to(device)
+    #         y = y.to(device)
 
-            res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
-            all_accs[i] += res['accuracy']
-            all_f1s[i] += res['f1_score']
-            inputs.append([np.argmax(o) for o in out])
-            i += 1
+    #         res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
+    #         all_accs[i] += res['accuracy']
+    #         all_f1s[i] += res['f1_score']
+    #         inputs.append([np.argmax(o) for o in out])
+    #         i += 1
 
-        if fuse_models:
-            print_log("fusing models")
-            final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
-            final_acc += final_res['accuracy']
-            final_f1 += final_res['f1_score']
+    #     if fuse_models:
+    #         print_log("fusing models")
+    #         final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
+    #         final_acc += final_res['accuracy']
+    #         final_f1 += final_res['f1_score']
 
 
-    print("acc: ", np.divide(all_accs,trials))
-    print("f1: ", np.divide(all_f1s,trials))
-    print(selected_modalities)
+    # print("acc: ", np.divide(all_accs,trials))
+    # print("f1: ", np.divide(all_f1s,trials))
+    # print(selected_modalities)
 
-    if fuse_models:
-        print("final acc: ", final_acc/trials)
-        print("final f1: ", final_f1/trials)
+    # if fuse_models:
+    #     print("final acc: ", final_acc/trials)
+        # print("final f1: ", final_f1/trials)
 
     
 
