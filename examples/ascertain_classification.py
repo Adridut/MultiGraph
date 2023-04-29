@@ -51,87 +51,6 @@ def run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio,
     print(acc/trials, f1/trials)
 
 
-def run_HGNN(device, selected_modalities, label, train_ratio, val_ratio, test_ratio, n_classes, n_hidden_layers, k, lr , weight_decay, epoch, model):
-
-    hgnn_acc = []
-    hgnn_f1 = []
-    outs = []
-    for m in selected_modalities:
-
-        print_log("loading data: " + str(m))
-        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
-        X = torch.tensor(X).float()
-        y = torch.from_numpy(y).long()
-        train_mask = torch.tensor(train_mask)
-        val_mask = torch.tensor(val_mask)
-        test_mask = torch.tensor(test_mask)
-
-        print_log("generating hypergraph: " + str(m))
-        G = Hypergraph.from_feature_kNN(X, k=k)
-        X = torch.eye(G.num_v)
-
-        G.to(device)
-        X = X.to(device)
-        # Attribute HG
-        for a in sa:
-            G.add_hyperedges(a, group_name="subject_attributes")
-
-
-        for a in va:
-            G.add_hyperedges(a, group_name="video_attributes")
-
-
-        for a in lpa:
-            G.add_hyperedges(a, group_name="low_personality_attributes")
-
-
-        for a in hpa:
-            G.add_hyperedges(a, group_name="high_personality_attributes")
-
-
-        if model == "DHGNN":
-            # net = DHGNN(dim_feat=X.shape[1],
-            # n_categories=n_classes,
-            # k_structured=128,
-            # k_nearest=64,
-            # k_cluster=64,
-            # wu_knn=0,
-            # wu_kmeans=10,
-            # wu_struct=5,
-            # clusters=400,
-            # adjacent_centers=1,
-            # n_layers=2,
-            # layer_spec=[256],
-            # dropout_rate=0.5,
-            # has_bias=True
-            # )
-            net = DHGNN(dim_feat=X.shape[1],
-            n_categories=n_classes,
-            k_structured=128,
-            k_nearest=64,
-            k_cluster=64,
-            wu_knn=0,
-            wu_kmeans=10,
-            wu_struct=5,
-            clusters=400,
-            adjacent_centers=5,
-            n_layers=2,
-            layer_spec=[256],
-            dropout_rate=0.5,
-            has_bias=True
-            )
-        else:
-            net = HGNN(X.shape[1], n_hidden_layers, n_classes, use_bn=True)
-
-        res, out = HGNNTrain(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, epoch, model)
-        hgnn_acc.append(res["accuracy"])
-        hgnn_f1.append(res["f1_score"])
-        outs.append(out)
-
-
-    return outs, y, hgnn_acc, hgnn_f1, test_mask
-
-
 def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, model):
 
     optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
@@ -218,11 +137,16 @@ def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
+        st = time.time()
+        print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
+
 
     output = net(X)
     evaluator = Evaluator(["accuracy", "f1_score"])
     res = evaluator.test(y[test_mask], output[test_mask])
 
+    print(res)
     return res
 
 def select_model(feat_dimension, n_hidden_layers, n_classes, model):
@@ -249,9 +173,10 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
 
 
 def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
-    G = Hypergraph.from_feature_kNN(X, k=k)
-    print(G.num_e)
-    print(G.num_v)
+
+    G = Hypergraph(X.size()[0])
+    G.add_hyperedges_from_feature_kNN(X, k=k)
+
     if use_attributes:
         for a in sa:
             G.add_hyperedges(a, group_name="subject_attributes")
@@ -266,10 +191,10 @@ def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG']]
+    # selected_modalities = [['ECG'], ['EEG'], ['GSR'], ['EMO']]
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EEG', 'GSR']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     label = "valence"
@@ -281,20 +206,21 @@ if __name__ == "__main__":
     k = 4 #4, 20
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4
-    n_epoch = 1
+    n_epoch = 200
     model = "HGNN"
     n_nodes = 2088
+    fuse_models = False
 
 
     final_acc = 0
     final_f1 = 0
-    trials = 1
+    trials = 10
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
     inputs = []
 
 
-    # run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "NB", trials)
+    run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "SVM", trials)
 
 
     model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model)
@@ -326,16 +252,20 @@ if __name__ == "__main__":
             inputs.append([np.argmax(o) for o in out])
             i += 1
 
+        if fuse_models:
+            print_log("fusing models")
+            final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
+            final_acc += final_res['accuracy']
+            final_f1 += final_res['f1_score']
 
-        final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
-        final_acc += final_res['accuracy']
-        final_f1 += final_res['f1_score']
 
     print("acc: ", np.divide(all_accs,trials))
     print("f1: ", np.divide(all_f1s,trials))
     print(selected_modalities)
-    print("final acc: ", final_acc/trials)
-    print("final f1: ", final_f1/trials)
+
+    if fuse_models:
+        print("final acc: ", final_acc/trials)
+        print("final f1: ", final_f1/trials)
 
     
 
