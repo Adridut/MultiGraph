@@ -131,6 +131,9 @@ def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask):
     net = FC(X.size()[1], n_classes)
     optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
 
+    net = net.to(device)
+    X = X.to(device)
+
     for epoch in range(n_epoch):
         # Vorhersage berechnen
         outputs = net(X)
@@ -254,7 +257,7 @@ if __name__ == "__main__":
     #         res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
     #         all_accs[i] += res['accuracy']
     #         all_f1s[i] += res['f1_score']
-    #         inputs.append([o.argmax() for o in out])
+    #         inputs.append([torch.argmax(o) for o in out])
     #         i += 1
 
     #     if fuse_models:
