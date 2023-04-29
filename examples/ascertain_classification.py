@@ -1,6 +1,5 @@
 # coding=utf-8
 import numpy as np
-from hyperg.utils import print_log
 
 from data_helper import load_ASERTAIN
 
@@ -29,6 +28,12 @@ import matplotlib.pyplot as plt
 
 from fc import FC
 
+def print_log(message):
+    """
+    :param message: str,
+    :return:
+    """
+    print("[{}] {}".format(time.strftime("%Y-%m-%d %X", time.localtime()), message))
 
 def run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, model, trials):
     acc = 0
@@ -249,7 +254,7 @@ if __name__ == "__main__":
     #         res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
     #         all_accs[i] += res['accuracy']
     #         all_f1s[i] += res['f1_score']
-    #         inputs.append([np.argmax(o) for o in out])
+    #         inputs.append([o.argmax() for o in out])
     #         i += 1
 
     #     if fuse_models:
