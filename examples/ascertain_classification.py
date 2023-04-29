@@ -56,7 +56,7 @@ def run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio,
     print(acc/trials, f1/trials)
 
 
-def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, model):
+def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, model_name):
 
     optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
 
@@ -68,11 +68,11 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     best_epoch, best_val = 0, 0
     for epoch in range(n_epoch):
         # train
-        train(net, X, G, lbl, train_mask, optimizer, epoch, model)
+        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name)
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res, _ = infer(net, X, G, lbl, val_mask, model)
+                val_res, _ = infer(net, X, G, lbl, val_mask, model_name)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -89,18 +89,16 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     return res, all_outs
 
 
-def train(net, X, A, lbls, train_idx, optimizer, epoch, model):
+def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
     net.train()
     st = time.time()
     optimizer.zero_grad()
-    if model == "DHGNN":
-        ids = [i for i in range(2088) if train_idx[i]]
-        outs = net(ids=ids, feats=X, G=A, edge_dict=A.nbr_e, ite=epoch)
-        lbls = lbls[train_idx]   
+    if model_name == "FC":
+        outs = net(X)   
     else:
         outs = net(X, A)
-        outs, lbls = outs[train_idx], lbls[train_idx]
 
+    outs, lbls = outs[train_idx], lbls[train_idx]
     loss = F.cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
@@ -109,16 +107,15 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model):
 
 
 @torch.no_grad()
-def infer(net, X, A, lbls, idx, model, test=False):
+def infer(net, X, A, lbls, idx, model_name, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
-    if model == "DHGNN":
-        ids = [i for i in range(2088) if idx[i]]
-        outs = net(ids=ids, feats=X, G=A, edge_dict=A.nbr_e, ite=epoch)
-        lbls = lbls[idx]
+    if model_name == "DHGNN":
+        all_outs = net(X)
     else:
         all_outs = net(X, A)
-        outs, lbls = all_outs[idx], lbls[idx]
+
+    outs, lbls = all_outs[idx], lbls[idx]
     if not test:
         res = evaluator.validate(lbls, outs)
     else:
@@ -215,7 +212,7 @@ if __name__ == "__main__":
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4
     n_epoch = 1000
-    model = "HGNN"
+    model_name = "HGNN"
     n_nodes = 2088
     fuse_models = False
 
@@ -225,55 +222,58 @@ if __name__ == "__main__":
     trials = 10
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
-    inputs = []
 
 
     run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, "NB", trials)
 
 
-    # model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model)
-    # for trial in range(trials):
-    #     print_log("trial: " + str(trial))
-    #     i = 0
-    #     for m in selected_modalities:
+    model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name)
+    for trial in range(trials):
+        print_log("trial: " + str(trial))
+        i = 0
+        inputs = []
+        for m in selected_modalities:
 
-    #         print_log("loading data: " + str(m))
-    #         X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+            print_log("loading data: " + str(m))
+            X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
             
-    #         X = torch.tensor(X).float()
-    #         y = torch.from_numpy(y).long()
-    #         train_mask = torch.tensor(train_mask)
-    #         val_mask = torch.tensor(val_mask)
-    #         test_mask = torch.tensor(test_mask)
+            X = torch.tensor(X).float()
+            y = torch.from_numpy(y).long()
+            train_mask = torch.tensor(train_mask)
+            val_mask = torch.tensor(val_mask)
+            test_mask = torch.tensor(test_mask)
 
-    #         print_log("generating hypergraph: " + str(m))
-    #         G = generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes=True)
-    #         X = torch.eye(G.num_v)
+            print_log("generating hypergraph: " + str(m))
+            G = generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes=True)
+            X = torch.eye(G.num_v)
 
-    #         G.to(device)
-    #         X = X.to(device)
-    #         y = y.to(device)
+            G.to(device)
+            X = X.to(device)
+            y = y.to(device)
 
-    #         res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model)
-    #         all_accs[i] += res['accuracy']
-    #         all_f1s[i] += res['f1_score']
-    #         inputs.append([torch.argmax(o) for o in out])
-    #         i += 1
+            res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
+            all_accs[i] += res['accuracy']
+            all_f1s[i] += res['f1_score']
+            inputs.append([torch.argmax(o) for o in out])
+            i += 1
 
-    #     if fuse_models:
-    #         print_log("fusing models")
-    #         final_res = fuse(inputs, n_classes, lr, weight_decay, n_epoch, y, test_mask)
-    #         final_acc += final_res['accuracy']
-    #         final_f1 += final_res['f1_score']
+        if fuse_models:
+            print_log("fusing models")
+            inputs = torch.tenspr(inputs).float()
+            inputs = inputs.permute(1,0)
+            net = FC(inputs.size()[1], n_classes)
+            final_res, _ = run(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
+            final_acc += final_res['accuracy']
+            final_f1 += final_res['f1_score']
 
 
-    # print("acc: ", np.divide(all_accs,trials))
-    # print("f1: ", np.divide(all_f1s,trials))
-    # print(selected_modalities)
+    print("acc: ", np.divide(all_accs,trials))
+    print("f1: ", np.divide(all_f1s,trials))
+    print(selected_modalities)
 
-    # if fuse_models:
-    #     print("final acc: ", final_acc/trials)
-        # print("final f1: ", final_f1/trials)
+    if fuse_models:
+        print("final acc: ", final_acc/trials)
+        print("final f1: ", final_f1/trials)
 
     
 
