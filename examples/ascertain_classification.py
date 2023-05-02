@@ -83,7 +83,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, model, test=True)
+    res, all_outs = infer(net, X, G, lbl, test_mask, model_name, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
@@ -110,7 +110,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
 def infer(net, X, A, lbls, idx, model_name, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
-    if model_name == "DHGNN":
+    if model_name == "FC":
         all_outs = net(X)
     else:
         all_outs = net(X, A)
@@ -211,15 +211,15 @@ if __name__ == "__main__":
     k = 4 #4, 20
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4
-    n_epoch = 1000
+    n_epoch = 1
     model_name = "HGNN"
     n_nodes = 2088
-    fuse_models = False
+    fuse_models = True
 
 
     final_acc = 0
     final_f1 = 0
-    trials = 10
+    trials = 1
     all_accs = [0 for m in selected_modalities]
     all_f1s = [0 for m in selected_modalities]
 
@@ -254,15 +254,15 @@ if __name__ == "__main__":
             res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
             all_accs[i] += res['accuracy']
             all_f1s[i] += res['f1_score']
-            inputs.append([torch.argmax(o) for o in out])
+            inputs.append([abs(o[1]) - abs(o[0]) for o in out])
             i += 1
 
         if fuse_models:
             print_log("fusing models")
-            inputs = torch.tenspr(inputs).float()
+            inputs = torch.tensor(inputs).float()
             inputs = inputs.permute(1,0)
             net = FC(inputs.size()[1], n_classes)
-            final_res, _ = run(device, X, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
+            final_res, _ = run(device, inputs, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
             final_acc += final_res['accuracy']
             final_f1 += final_res['f1_score']
 
