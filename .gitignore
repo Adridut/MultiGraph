@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Dependency directories
+dist/
+build/
+*.egg-info/
+
+# Development files
+*.swp
+*.bak
+*.tmp
+*.bak2
+*.~*
+
+# Jupyter Notebook specific files
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm project settings
+.idea/
+
+# macOS files
+.DS_Store
+
+# Windows files
+Thumbs.db
