@@ -122,7 +122,7 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
         res = evaluator.test(lbls, outs)
     return res, all_outs
 
-def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask):
+def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask, device):
     X = torch.tensor(X).float()
     X = X.permute(1, 0)
     net = FC(X.size()[1], n_classes)
@@ -147,9 +147,9 @@ def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask):
         print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
 
 
-    output = net(X)
+    outputs = net(X)
     evaluator = Evaluator(["accuracy", "f1_score"])
-    res = evaluator.test(y[test_mask], output[test_mask])
+    res = evaluator.test(y[test_mask], outputs[test_mask])
 
     print(res)
     return res
@@ -180,17 +180,17 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
 def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
 
     G = Hypergraph(X.size()[0])
-    G.add_hyperedges_from_feature_kNN(X, k=k)
+    G.add_hyperedges_from_feature_kNN(X, k=k, group_name="mod")
 
-    # if use_attributes:
-    #     for a in sa:
-    #         G.add_hyperedges(a, group_name="subject_attributes")
-    #     for a in va:
-    #         G.add_hyperedges(a, group_name="video_attributes")
-    #     for a in lpa:
-    #         G.add_hyperedges(a, group_name="low_personality_attributes")
-    #     for a in hpa:
-    #         G.add_hyperedges(a, group_name="high_personality_attributes")
+    if use_attributes:
+        for a in sa:
+            G.add_hyperedges(a, group_name="subject_attributes")
+        for a in va:
+            G.add_hyperedges(a, group_name="video_attributes")
+        for a in lpa:
+            G.add_hyperedges(a, group_name="low_personality_attributes")
+        for a in hpa:
+            G.add_hyperedges(a, group_name="high_personality_attributes")
     return G
 
 if __name__ == "__main__":
