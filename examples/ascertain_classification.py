@@ -176,24 +176,6 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
             has_bias=True
             )
 
-
-def generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes = True):
-
-    G = Hypergraph(X.size()[0])
-    G.add_hyperedges_from_feature_kNN(X, k=k, group_name="mod")
-
-    if use_attributes:
-        for a in sa:
-            G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
-        for a in va:
-            G.add_hyperedges(a, group_name="video_attributes_"+str(a))
-        for a in lpa:
-            G.add_hyperedges(a, group_name="low_personality_attributes_"+str(a))
-        for a in hpa:
-            G.add_hyperedges(a, group_name="high_personality_attributes_"+str(a))
-
-    return G
-
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -216,6 +198,7 @@ if __name__ == "__main__":
     model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
     n_nodes = 2088
     fuse_models = True
+    use_attributes = True
 
 
     final_acc = 0
@@ -240,13 +223,28 @@ if __name__ == "__main__":
                 X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
                 
                 X = torch.tensor(X).float()
+
+                print_log("generating hypergraph: " + str(m))
+                G = Hypergraph(X.size()[0])
+
+                for mod in m:
+                    x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+                    G.add_hyperedges_from_feature_kNN(X, k=k, group_name=mod)
+
+                if use_attributes:
+                    for a in sa:
+                        G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+                    for a in va:
+                        G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+                    for a in lpa:
+                        G.add_hyperedges(a, group_name="low_personality_attributes_"+str(a))
+                    for a in hpa:
+                        G.add_hyperedges(a, group_name="high_personality_attributes_"+str(a))
+
                 y = torch.from_numpy(y).long()
                 train_mask = torch.tensor(train_mask)
                 val_mask = torch.tensor(val_mask)
                 test_mask = torch.tensor(test_mask)
-
-                print_log("generating hypergraph: " + str(m))
-                G = generate_hypergraph(X, k, sa, va, lpa, hpa, use_attributes=True)
                 X = torch.eye(G.num_v)
 
                 G.to(device)
