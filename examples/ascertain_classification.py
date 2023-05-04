@@ -122,37 +122,6 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
         res = evaluator.test(lbls, outs)
     return res, all_outs
 
-def fuse(X, n_classes, lr, weight_decay, n_epoch, y, test_mask, device):
-    X = torch.tensor(X).float()
-    X = X.permute(1, 0)
-    net = FC(X.size()[1], n_classes)
-    optimizer = optim.Adam(net.parameters(), lr=lr, weight_decay=weight_decay)
-
-    net = net.to(device)
-    X = X.to(device)
-
-    for epoch in range(n_epoch):
-        # Vorhersage berechnen
-        outputs = net(X)
-
-        # Fehler berechnen
-        loss = F.cross_entropy(outputs[~test_mask], y[~test_mask])
-
-        # Anpassung der Gewichte
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        
-        st = time.time()
-        print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
-
-
-    outputs = net(X)
-    evaluator = Evaluator(["accuracy", "f1_score"])
-    res = evaluator.test(y[test_mask], outputs[test_mask])
-
-    print(res)
-    return res
 
 def select_model(feat_dimension, n_hidden_layers, n_classes, model):
         if model == "HGNN":
@@ -229,7 +198,8 @@ if __name__ == "__main__":
 
                 for mod in m:
                     x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
-                    G.add_hyperedges_from_feature_kNN(X, k=k, group_name=mod)
+                    x = torch.tensor(x).float()
+                    G.add_hyperedges_from_feature_kNN(x, k=k, group_name=mod)
 
                 if use_attributes:
                     for a in sa:
@@ -254,13 +224,15 @@ if __name__ == "__main__":
                 res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
                 all_accs[i] += res['accuracy']
                 all_f1s[i] += res['f1_score']
-                inputs.append([abs(o[1]) - abs(o[0]) for o in out])
+                inputs.append(out)
                 i += 1
 
             if fuse_models:
                 print_log("fusing models")
-                inputs = torch.tensor(inputs).float()
-                inputs = inputs.permute(1,0)
+                inputs = torch.cat(inputs, 1)
+                print(inputs.size())
+                # inputs = torch.tensor(inputs).float()
+                # inputs = inputs.permute(1,0)
                 net = FC(inputs.size()[1], n_classes)
                 final_res, _ = run(device, inputs, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
                 final_acc += final_res['accuracy']
