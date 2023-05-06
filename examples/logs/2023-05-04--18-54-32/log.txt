@@ -1,0 +1,100 @@
+[INFO 2023-05-04 18:54:32,250]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-04--18-54-32/log.txt
+[INFO 2023-05-04 18:54:32,251]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-04--18-54-32
+[INFO 2023-05-04 18:54:32,251]-> Random seed is 0
+[INFO 2023-05-04 18:54:32,252]-> A new study created in memory with name: no-name-44b86c1f-0eb2-4812-a43f-6696d69b3eaf
+[INFO 2023-05-04 18:54:44,814]-> Trial 0 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 56, 'k_EEG': 72, 'hidden_dim': 13, 'lr': 0.001229607110732572, 'weight_decay': 0.0007035737028722148}. Best is trial 0 with value: 0.6555023789405823.
+[INFO 2023-05-04 18:54:56,480]-> Trial 1 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 65, 'k_EEG': 45, 'hidden_dim': 18, 'lr': 0.008459126528049376, 'weight_decay': 0.0005846326121643416}. Best is trial 0 with value: 0.6555023789405823.
+[INFO 2023-05-04 18:55:08,095]-> Trial 2 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 80, 'k_EEG': 54, 'hidden_dim': 12, 'lr': 0.007098936257405904, 'weight_decay': 0.00013869861245357332}. Best is trial 0 with value: 0.6555023789405823.
+[INFO 2023-05-04 18:55:18,505]-> Trial 3 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 10, 'k_EEG': 4, 'hidden_dim': 17, 'lr': 0.003600091192911611, 'weight_decay': 0.005495716186411619}. Best is trial 0 with value: 0.6555023789405823.
+[INFO 2023-05-04 18:55:30,615]-> Trial 4 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 98, 'k_EEG': 81, 'hidden_dim': 10, 'lr': 0.0036396393567863887, 'weight_decay': 0.00017240460099242303}. Best is trial 0 with value: 0.6555023789405823.
+[INFO 2023-05-04 18:55:41,998]-> Trial 5 finished with value: 0.6650717854499817 and parameters: {'k_ECG': 65, 'k_EEG': 16, 'hidden_dim': 19, 'lr': 0.001105851072569646, 'weight_decay': 0.0006750312521595928}. Best is trial 5 with value: 0.6650717854499817.
+[INFO 2023-05-04 18:55:43,821]-> Trial 6 pruned. 
+[INFO 2023-05-04 18:55:55,498]-> Trial 7 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 63, 'k_EEG': 62, 'hidden_dim': 13, 'lr': 0.007717846862118065, 'weight_decay': 0.0023101522250182378}. Best is trial 5 with value: 0.6650717854499817.
+[INFO 2023-05-04 18:56:01,438]-> Trial 8 pruned. 
+[INFO 2023-05-04 18:56:07,393]-> Trial 9 pruned. 
+[INFO 2023-05-04 18:56:13,491]-> Trial 10 pruned. 
+[INFO 2023-05-04 18:56:15,350]-> Trial 11 pruned. 
+[INFO 2023-05-04 18:56:17,250]-> Trial 12 pruned. 
+[INFO 2023-05-04 18:56:19,050]-> Trial 13 pruned. 
+[INFO 2023-05-04 18:56:30,095]-> Trial 14 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 25, 'k_EEG': 27, 'hidden_dim': 6, 'lr': 0.002262289140480344, 'weight_decay': 0.001401452945579012}. Best is trial 5 with value: 0.6650717854499817.
+[INFO 2023-05-04 18:56:41,963]-> Trial 15 finished with value: 0.679425835609436 and parameters: {'k_ECG': 49, 'k_EEG': 99, 'hidden_dim': 2, 'lr': 0.0006189295525337117, 'weight_decay': 0.0004035446353541675}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:56:54,229]-> Trial 16 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 80, 'k_EEG': 99, 'hidden_dim': 2, 'lr': 0.0005063616837185448, 'weight_decay': 0.0003390742901784044}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:57:05,688]-> Trial 17 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 43, 'k_EEG': 33, 'hidden_dim': 8, 'lr': 0.00026062677100823975, 'weight_decay': 0.0002712658505438071}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:57:07,424]-> Trial 18 pruned. 
+[INFO 2023-05-04 18:57:19,094]-> Trial 19 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 36, 'k_EEG': 85, 'hidden_dim': 5, 'lr': 0.000269065030878018, 'weight_decay': 0.00020589649202734786}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:57:20,939]-> Trial 20 pruned. 
+[INFO 2023-05-04 18:57:32,580]-> Trial 21 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 53, 'k_EEG': 64, 'hidden_dim': 14, 'lr': 0.0013624728974865885, 'weight_decay': 0.0007924093520641252}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:57:44,380]-> Trial 22 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 57, 'k_EEG': 90, 'hidden_dim': 17, 'lr': 0.0020139434665047114, 'weight_decay': 0.0006799432278075121}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:57:46,236]-> Trial 23 pruned. 
+[INFO 2023-05-04 18:57:48,073]-> Trial 24 pruned. 
+[INFO 2023-05-04 18:58:00,316]-> Trial 25 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 72, 'k_EEG': 92, 'hidden_dim': 4, 'lr': 0.000753829255658973, 'weight_decay': 0.0010833328453301529}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:58:02,152]-> Trial 26 pruned. 
+[INFO 2023-05-04 18:58:03,974]-> Trial 27 pruned. 
+[INFO 2023-05-04 18:58:15,563]-> Trial 28 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 51, 'k_EEG': 62, 'hidden_dim': 19, 'lr': 0.0009697289017954574, 'weight_decay': 0.0013828962366102097}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:58:27,214]-> Trial 29 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 65, 'k_EEG': 46, 'hidden_dim': 8, 'lr': 0.0020414298997314556, 'weight_decay': 0.0006202708066786553}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:58:29,083]-> Trial 30 pruned. 
+[INFO 2023-05-04 18:58:30,961]-> Trial 31 pruned. 
+[INFO 2023-05-04 18:58:42,761]-> Trial 32 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 88, 'k_EEG': 38, 'hidden_dim': 14, 'lr': 0.003455080182818626, 'weight_decay': 0.00010024618501764593}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:58:44,643]-> Trial 33 pruned. 
+[INFO 2023-05-04 18:58:46,603]-> Trial 34 pruned. 
+[INFO 2023-05-04 18:58:58,509]-> Trial 35 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 60, 'k_EEG': 66, 'hidden_dim': 10, 'lr': 0.004891987963191053, 'weight_decay': 0.0003470535658487477}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:59:10,163]-> Trial 36 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 67, 'k_EEG': 49, 'hidden_dim': 15, 'lr': 0.009835886453198574, 'weight_decay': 0.00014704869465371367}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:59:12,018]-> Trial 37 pruned. 
+[INFO 2023-05-04 18:59:13,942]-> Trial 38 pruned. 
+[INFO 2023-05-04 18:59:15,745]-> Trial 39 pruned. 
+[INFO 2023-05-04 18:59:17,658]-> Trial 40 pruned. 
+[INFO 2023-05-04 18:59:19,543]-> Trial 41 pruned. 
+[INFO 2023-05-04 18:59:31,538]-> Trial 42 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 63, 'k_EEG': 68, 'hidden_dim': 13, 'lr': 0.004592728815578118, 'weight_decay': 0.00953967243265763}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:59:33,417]-> Trial 43 pruned. 
+[INFO 2023-05-04 18:59:45,205]-> Trial 44 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 33, 'k_EEG': 50, 'hidden_dim': 14, 'lr': 0.002930986524037103, 'weight_decay': 0.000812669188077747}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 18:59:47,060]-> Trial 45 pruned. 
+[INFO 2023-05-04 18:59:48,821]-> Trial 46 pruned. 
+[INFO 2023-05-04 19:00:00,785]-> Trial 47 finished with value: 0.6698564887046814 and parameters: {'k_ECG': 48, 'k_EEG': 88, 'hidden_dim': 20, 'lr': 0.00675995671654242, 'weight_decay': 0.00029635317320024675}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:00:02,690]-> Trial 48 pruned. 
+[INFO 2023-05-04 19:00:14,720]-> Trial 49 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 42, 'k_EEG': 86, 'hidden_dim': 19, 'lr': 0.005939793973448243, 'weight_decay': 0.0003942831109526519}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:00:16,620]-> Trial 50 pruned. 
+[INFO 2023-05-04 19:00:28,335]-> Trial 51 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 50, 'k_EEG': 69, 'hidden_dim': 6, 'lr': 0.007157033839242388, 'weight_decay': 0.00026892223522199726}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:00:30,232]-> Trial 52 pruned. 
+[INFO 2023-05-04 19:00:42,506]-> Trial 53 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 69, 'k_EEG': 95, 'hidden_dim': 11, 'lr': 0.00405932985838119, 'weight_decay': 0.000637231874522328}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:00:54,474]-> Trial 54 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 63, 'k_EEG': 87, 'hidden_dim': 15, 'lr': 0.0051333826576569, 'weight_decay': 0.0005232345041605504}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:01:06,825]-> Trial 55 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 82, 'k_EEG': 79, 'hidden_dim': 18, 'lr': 0.0013873942222641347, 'weight_decay': 0.0003488099173857348}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:01:08,707]-> Trial 56 pruned. 
+[INFO 2023-05-04 19:01:10,602]-> Trial 57 pruned. 
+[INFO 2023-05-04 19:01:22,596]-> Trial 58 finished with value: 0.6650717854499817 and parameters: {'k_ECG': 76, 'k_EEG': 58, 'hidden_dim': 9, 'lr': 0.009102048012699065, 'weight_decay': 0.00058397812388647}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:01:34,576]-> Trial 59 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 74, 'k_EEG': 58, 'hidden_dim': 5, 'lr': 0.008565105849241509, 'weight_decay': 0.0005710546003265971}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:01:46,229]-> Trial 60 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 82, 'k_EEG': 21, 'hidden_dim': 9, 'lr': 0.00421201793602217, 'weight_decay': 0.0004658664487701035}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:01:48,090]-> Trial 61 pruned. 
+[INFO 2023-05-04 19:01:59,802]-> Trial 62 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 58, 'k_EEG': 46, 'hidden_dim': 12, 'lr': 0.0011975181024800844, 'weight_decay': 0.0010739697407601597}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:02:11,518]-> Trial 63 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 15, 'k_EEG': 96, 'hidden_dim': 14, 'lr': 0.009367717945842987, 'weight_decay': 0.0007347955138251711}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:02:23,534]-> Trial 64 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 70, 'k_EEG': 61, 'hidden_dim': 3, 'lr': 0.007214508922271856, 'weight_decay': 0.0003810834668272734}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:02:35,576]-> Trial 65 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 75, 'k_EEG': 70, 'hidden_dim': 19, 'lr': 0.0065964197337405285, 'weight_decay': 0.0003034357140244986}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:02:48,160]-> Trial 66 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 65, 'k_EEG': 89, 'hidden_dim': 11, 'lr': 0.000663037525442349, 'weight_decay': 0.0006139864108797547}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:02:50,053]-> Trial 67 pruned. 
+[INFO 2023-05-04 19:02:51,918]-> Trial 68 pruned. 
+[INFO 2023-05-04 19:03:03,965]-> Trial 69 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 78, 'k_EEG': 56, 'hidden_dim': 7, 'lr': 0.0008006181833714195, 'weight_decay': 0.00042689238717570817}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:03:15,628]-> Trial 70 finished with value: 0.6555023789405823 and parameters: {'k_ECG': 40, 'k_EEG': 42, 'hidden_dim': 8, 'lr': 0.0010157831031775417, 'weight_decay': 0.0007300625000169227}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:03:27,363]-> Trial 71 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 48, 'k_EEG': 69, 'hidden_dim': 6, 'lr': 0.007225192957692337, 'weight_decay': 0.00027266697591629094}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:03:29,258]-> Trial 72 pruned. 
+[INFO 2023-05-04 19:03:31,152]-> Trial 73 pruned. 
+[INFO 2023-05-04 19:03:33,069]-> Trial 74 pruned. 
+[INFO 2023-05-04 19:03:34,964]-> Trial 75 pruned. 
+[INFO 2023-05-04 19:03:46,900]-> Trial 76 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 66, 'k_EEG': 57, 'hidden_dim': 7, 'lr': 0.00997862397853358, 'weight_decay': 0.0003000691893934137}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:03:59,210]-> Trial 77 finished with value: 0.6507176756858826 and parameters: {'k_ECG': 96, 'k_EEG': 61, 'hidden_dim': 12, 'lr': 0.005563359660782889, 'weight_decay': 0.0006466386699281442}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:04:01,124]-> Trial 78 pruned. 
+[INFO 2023-05-04 19:04:03,065]-> Trial 79 pruned. 
+[INFO 2023-05-04 19:04:14,880]-> Trial 80 finished with value: 0.6411483287811279 and parameters: {'k_ECG': 70, 'k_EEG': 49, 'hidden_dim': 13, 'lr': 0.0012341651172766178, 'weight_decay': 0.00014333692828743188}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:04:27,326]-> Trial 81 finished with value: 0.6459330320358276 and parameters: {'k_ECG': 69, 'k_EEG': 96, 'hidden_dim': 11, 'lr': 0.004557461982307399, 'weight_decay': 0.00061757385459035}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:04:29,272]-> Trial 82 pruned. 
+[INFO 2023-05-04 19:04:40,557]-> Trial 83 finished with value: 0.6363636255264282 and parameters: {'k_ECG': 45, 'k_EEG': 11, 'hidden_dim': 8, 'lr': 0.003327794691946429, 'weight_decay': 0.000778681359385853}. Best is trial 15 with value: 0.679425835609436.
+[INFO 2023-05-04 19:04:40,978]-> Best trial:
+[INFO 2023-05-04 19:04:40,979]-> 	Value: 0.679
+[INFO 2023-05-04 19:04:40,979]-> 	Params:
+[INFO 2023-05-04 19:04:40,979]-> 		k_ECG |-> 49
+[INFO 2023-05-04 19:04:40,979]-> 		k_EEG |-> 99
+[INFO 2023-05-04 19:04:40,979]-> 		hidden_dim |-> 2
+[INFO 2023-05-04 19:04:40,980]-> 		lr |-> 0.0006189295525337117
+[INFO 2023-05-04 19:04:40,980]-> 		weight_decay |-> 0.0004035446353541675
+[INFO 2023-05-04 19:04:41,255]-> Final test results:
+[INFO 2023-05-04 19:04:41,255]-> 	accuracy |-> 0.579
+[INFO 2023-05-04 19:04:41,255]-> 	f1_score |-> 0.396
+[INFO 2023-05-04 19:04:41,256]-> 	f1_score -> average@micro |-> 0.579

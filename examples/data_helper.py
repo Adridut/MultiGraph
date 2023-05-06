@@ -13,7 +13,7 @@ import random
 
 
 
-# random.seed(0)
+random.seed(0)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
 
