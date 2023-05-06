@@ -106,7 +106,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
         outs = net(X, A)
 
     outs, lbls = outs[train_idx], lbls[train_idx]
-    loss = F.cross_entropy(outs, lbls)
+    loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
     print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
@@ -123,6 +123,7 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
         all_outs = net(X, A)
 
     outs, lbls = all_outs[idx], lbls[idx]
+    lbls = torch.argmax(lbls, dim=1)
     if not test:
         res = evaluator.validate(lbls, outs)
     else:
@@ -196,9 +197,9 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['GSR']]
-    selected_modalities = [['ECG', 'EMO']]
+    # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -212,16 +213,16 @@ if __name__ == "__main__":
     val_ratio = 10
     test_ratio = 10
     n_classes = 2
-    n_hidden_layers = 17 #8
+    n_hidden_layers = 8 #8
     k = 4 #4, 20    
-    lr = 0.003 #0.01, 0.001
-    weight_decay = 0.005 #5*10**-4 
+    lr = 0.001 #0.01, 0.001
+    weight_decay = 5*10**-4 
     n_epoch = 600
-    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     n_nodes = 2088
     fuse_models = True
     use_attributes = True
-    opti = True
+    opti = False
 
 
     final_acc = 0
@@ -272,13 +273,13 @@ if __name__ == "__main__":
                 i = 0
                 inputs = []
                 for m in selected_modalities:
-                    n_hidden_layers = hds[i]
+                    # n_hidden_layers = hds[i]
                     model = select_model(feat_dimension=n_nodes, n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name)
 
                     print_log("loading data: " + str(m))
                     X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
                     
-                    X = torch.tensor(X).float()
+                    X = torch.tensor(X, requires_grad=True).float()
 
                     print_log("generating hypergraph: " + str(m))
                     G = Hypergraph(X.size()[0])
@@ -287,7 +288,8 @@ if __name__ == "__main__":
                     for mod in m:
                         x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
                         x = torch.tensor(x).float()
-                        G.add_hyperedges_from_feature_kNN(x, k=ks[i][j], group_name=mod)
+                        # k = ks[i][j]
+                        G.add_hyperedges_from_feature_kNN(x, k=k, group_name=mod)
                         j += 1
 
                     if use_attributes:
@@ -300,7 +302,8 @@ if __name__ == "__main__":
                         for a in hpa:
                             G.add_hyperedges(a, group_name="high_personality_attributes_"+str(a))
 
-                    y = torch.from_numpy(y).long()
+                    y = [[0,1] if e == 1 else [1,0] for e in y]
+                    y = torch.tensor(y).float()
                     train_mask = torch.tensor(train_mask)
                     val_mask = torch.tensor(val_mask)
                     test_mask = torch.tensor(test_mask)
@@ -311,8 +314,8 @@ if __name__ == "__main__":
                     y = y.to(device)
 
 
-                    lr = lrs[i]
-                    weight_decay = wds[i]
+                    # lr = lrs[i]
+                    # weight_decay = wds[i]
                     res, out = run(device, X, y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
                     all_accs[i] += res['accuracy']
                     all_f1s[i] += res['f1_score']
@@ -322,9 +325,7 @@ if __name__ == "__main__":
                 if fuse_models:
                     print_log("fusing models")
                     inputs = torch.cat(inputs, 1)
-                    print(inputs.size())
-                    # inputs = torch.tensor(inputs).float()
-                    # inputs = inputs.permute(1,0)
+                    print(inputs)
                     net = FC(inputs.size()[1], n_classes)
                     final_res, _ = run(device, inputs, y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
                     final_acc += final_res['accuracy']

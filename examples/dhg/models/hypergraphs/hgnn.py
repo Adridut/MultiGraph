@@ -1,8 +1,12 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
 
 import dhg
 from dhg.nn import HGNNConv
+
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
 class HGNN(nn.Module):
@@ -42,4 +46,6 @@ class HGNN(nn.Module):
         """
         for layer in self.layers:
             X = layer(X, hg)
+
+        X = F.softmax(X)
         return X
