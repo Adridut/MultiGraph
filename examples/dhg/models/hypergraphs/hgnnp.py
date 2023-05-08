@@ -3,6 +3,8 @@ import torch.nn as nn
 
 import dhg
 from dhg.nn import HGNNPConv
+import torch.nn.functional as F
+
 
 
 class HGNNP(nn.Module):
@@ -42,4 +44,6 @@ class HGNNP(nn.Module):
         """
         for layer in self.layers:
             X = layer(X, hg)
+
+        X = F.softmax(X, dim=1)
         return X
