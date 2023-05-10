@@ -194,7 +194,7 @@ def train_builder(trial, model):
         lr=trial.suggest_float("lr", 1e-4, 1e-2),
         weight_decay=trial.suggest_float("weight_decay", 1e-4, 1e-2),
     )
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     return {
         "optimizer": optimizer,
         "criterion": criterion,
