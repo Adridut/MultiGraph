@@ -12,5 +12,5 @@ class FC(nn.Module):
 
     def forward(self, x):
         x = self.fc(x)
-        x = F.softmax(x)
+        x = F.softmax(x, dim=1)
         return x

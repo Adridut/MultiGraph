@@ -32,7 +32,6 @@ from dhg.random import set_seed
 
 
 set_seed(0)
-random.seed(0)
 
 
 def print_log(message):
@@ -51,7 +50,7 @@ def run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio,
         model = GaussianNB()
     for i in range(trials):
         print_log("trial: " + str(i))
-        X, y, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities[0], label, train_ratio, val_ratio, test_ratio)
+        X, y, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities[0], label, train_ratio, val_ratio, test_ratio, i)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
         y_pred = model.fit(X_train, y_train).predict(X_test)
         evaluator = Evaluator(["accuracy", "f1_score"])
@@ -203,12 +202,12 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [[['ECG'], ['EEG'], ['EMO'], ['GSR']]]
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
-    selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [[['ECG', 'EEG', 'EMO', 'GSR']]]
+    # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     ks = [[58], [22], [45], [14], [49, 99], [85,43]]
     lrs = [0.00013869861245357332, 0.0011044005450656853, 0.005636798360593478, 0.00941688905278987, 0.0006189295525337117, 0.0026484233717115353]
@@ -227,7 +226,7 @@ if __name__ == "__main__":
     n_epoch = 600
     model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
     fuse_models = True
-    use_attributes = False
+    use_attributes = True
     opti = False
 
 
@@ -275,6 +274,7 @@ if __name__ == "__main__":
 
         else:
             for trial in range(trials):
+                random.seed(trial)
                 print_log("trial: " + str(trial))
                 i = 0
                 inputs = []
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                     # n_hidden_layers = hds[i]
 
                     print_log("loading data: " + str(m))
-                    X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+                    X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                     model = select_model(feat_dimension=X.shape[0], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name)
 
                     X = torch.tensor(X, requires_grad=True).float()
@@ -292,7 +292,7 @@ if __name__ == "__main__":
 
                     j = 0
                     for mod in m:
-                        x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+                        x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                         x = torch.tensor(x).float()
                         # k = ks[i][j]
                         G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))

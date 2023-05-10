@@ -11,15 +11,16 @@ import csv
 from itertools import groupby
 import random
 
+from sklearn.impute import SimpleImputer
 
 
-random.seed(0)
+
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
 
-def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20):
+def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20, trial=0):
 
-    # random.seed(0)
+    random.seed(trial)
     
     n_subjects = 58
     n_cases = 36
@@ -33,7 +34,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     """
 	convert csv to np array
 	"""
-    with open(os.path.join(dir, "ascertain_multimodal_no_nan.csv")) as file:
+    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
         reader = csv.reader(file)
         data = list(reader)
         columns = np.asarray(data[0])
@@ -116,21 +117,41 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     y = all_data[0:, label_index]
 
 
-
-
-    X = np.nan_to_num(X)
-    X = normalize(X)
-
     train_mask = [True for i in range(round(len(X)*train_ratio/100))] + [False for i in range(round(len(X)-len(X)*train_ratio/100))]
     test_mask = [False for i in range(round(len(X) - len(X)*test_ratio/100))] + [True for i in range(round(len(X)*test_ratio/100))]
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
+
+    X = np.nan_to_num(X, nan=0)
+
     scaler = StandardScaler()
-    # lda = LinearDiscriminantAnalysis()
+    impNan = SimpleImputer(missing_values=0, strategy='mean')
+    impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
+
+    X = normalize(X)
+
+    X[train_mask] = impInf.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = impInf.transform(X[valid_mask])
+    X[test_mask] = impInf.transform(X[test_mask])
+
+    X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = impNan.transform(X[valid_mask])
+    X[test_mask] = impNan.transform(X[test_mask])
+
+    X = normalize(X)
 
     X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = scaler.fit_transform(X[valid_mask])
-    X[test_mask] = scaler.fit_transform(X[test_mask])
+    X[valid_mask] = scaler.transform(X[valid_mask])
+    X[test_mask] = scaler.transform(X[test_mask])
+
+
+
+
+
+
+
+
+
 
     # X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
     # X[valid_mask] = lda.transform(X[valid_mask])
