@@ -20,7 +20,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'datasets')
 
 def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ratio=60, val_ratio=20, test_ratio=20, trial=0):
 
-    random.seed(trial)
+    # random.seed(trial)
     
     n_subjects = 58
     n_cases = 36
@@ -34,7 +34,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     """
 	convert csv to np array
 	"""
-    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
+    with open(os.path.join(dir, "ascertain_multimodal_no_nan.csv")) as file:
         reader = csv.reader(file)
         data = list(reader)
         columns = np.asarray(data[0])

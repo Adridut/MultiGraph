@@ -1,0 +1,26 @@
+[INFO 2023-05-10 19:28:49,758]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--19-28-49/log.txt
+[INFO 2023-05-10 19:28:49,759]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--19-28-49
+[INFO 2023-05-10 19:28:49,759]-> Random seed is 1683714529
+[INFO 2023-05-10 19:28:49,760]-> A new study created in memory with name: no-name-dfd0f54f-6573-4d7a-8079-7a2af956ecbe
+[WARNING 2023-05-10 19:28:57,344]-> Trial 0 failed with parameters: {'k': 19, 'hidden_dim': 18, 'lr': 0.00976488088787442, 'weight_decay': 0.007039613191019333} because of the following error: RuntimeError('Found dtype Long but expected Float').
+Traceback (most recent call last):
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/optuna/study/_optimize.py", line 200, in _run_trial
+    value_or_values = func(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 71, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 83, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/base.py", line 102, in experiment
+    self.train(self.data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 98, in train
+    return super().train(data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 115, in train
+    loss = criterion(outputs[train_mask], labels[train_mask],)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/modules/loss.py", line 619, in forward
+    return F.binary_cross_entropy(input, target, weight=self.weight, reduction=self.reduction)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 3098, in binary_cross_entropy
+    return torch._C._nn.binary_cross_entropy(input, target, weight, reduction_enum)
+RuntimeError: Found dtype Long but expected Float
+[WARNING 2023-05-10 19:28:57,346]-> Trial 0 failed with value None.

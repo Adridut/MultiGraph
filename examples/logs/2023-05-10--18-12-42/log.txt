@@ -1,0 +1,20 @@
+[INFO 2023-05-10 18:12:42,823]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--18-12-42/log.txt
+[INFO 2023-05-10 18:12:42,823]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--18-12-42
+[INFO 2023-05-10 18:12:42,824]-> Random seed is 0
+[INFO 2023-05-10 18:12:42,824]-> A new study created in memory with name: no-name-fe4011cb-c946-4ae8-8381-d345c9c46494
+[WARNING 2023-05-10 18:12:43,309]-> Trial 0 failed with parameters: {"k_['ECG']": 56} because of the following error: AssertionError('The number of vertices in the feature matrix is not equal to the number of vertices in the hypergraph.').
+Traceback (most recent call last):
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/optuna/study/_optimize.py", line 200, in _run_trial
+    value_or_values = func(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 71, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 83, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/base.py", line 87, in experiment
+    self.data["structure"] = self.structure_builder(trial).to(self.device)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/ascertain_classification.py", line 164, in structure_builder
+    G.add_hyperedges_from_feature_kNN(x, k=trial.suggest_int("k_"+str(mod), 2, 100), group_name=str(mod))
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/structure/hypergraphs/hypergraph.py", line 361, in add_hyperedges_from_feature_kNN
+    assert (
+AssertionError: The number of vertices in the feature matrix is not equal to the number of vertices in the hypergraph.
+[WARNING 2023-05-10 18:12:43,310]-> Trial 0 failed with value None.

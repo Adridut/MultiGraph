@@ -1,0 +1,34 @@
+[INFO 2023-05-10 19:33:04,166]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--19-33-04/log.txt
+[INFO 2023-05-10 19:33:04,167]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-10--19-33-04
+[INFO 2023-05-10 19:33:04,167]-> Random seed is 1683714784
+[INFO 2023-05-10 19:33:04,168]-> A new study created in memory with name: no-name-ac3501a0-0c9c-4b03-9203-fb2a58887da6
+[WARNING 2023-05-10 19:33:12,336]-> Trial 0 failed with parameters: {'k': 75, 'hidden_dim': 34, 'lr': 0.0003271978472098478, 'weight_decay': 0.0017956220100097415} because of the following error: AssertionError('y_true and y_pred must have the same length.').
+Traceback (most recent call last):
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/optuna/study/_optimize.py", line 200, in _run_trial
+    value_or_values = func(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 71, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 83, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/base.py", line 103, in experiment
+    val_res = self.validate(self.data, model)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 108, in validate
+    return super().validate(data, model)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 131, in validate
+    res = self.evaluator.validate(labels[val_mask], outputs[val_mask])
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/metrics/hypergraphs/hypergraph.py", line 41, in validate
+    return super().validate(y_true, y_pred)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/metrics/classification.py", line 150, in validate
+    return super().validate(y_true, y_pred)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/metrics/base.py", line 174, in validate
+    return self.func_list[self.validate_index](y_true, y_pred)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/metrics/classification.py", line 67, in accuracy
+    y_true, y_pred = _format_inputs(y_true, y_pred)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/metrics/classification.py", line 38, in _format_inputs
+    assert y_true.shape == y_pred.shape, "y_true and y_pred must have the same length."
+AssertionError: y_true and y_pred must have the same length.
+[WARNING 2023-05-10 19:33:12,337]-> Trial 0 failed with value None.
