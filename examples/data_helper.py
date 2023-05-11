@@ -122,7 +122,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
 
-    X = KNN(k=3).fit_transform(X)
+    X = KNN(k=3).fit_transform(X, y)
 
 
     scaler = StandardScaler()
