@@ -221,7 +221,7 @@ if __name__ == "__main__":
     val_ratio = 10
     test_ratio = 10
     n_classes = 2
-    n_hidden_layers = 8 #8
+    n_hidden_layers = 43 #8
     k = 4 #4, 20    
     lr = 0.01 #0.01, 0.001
     weight_decay = 0.004 #5*10**-4 
