@@ -157,11 +157,11 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
 def structure_builder(trial):
 
     G = Hypergraph(1142)
-    k = trial.suggest_int("k", 3, 100)
     for m in selected_modalities:
         for mod in m:
             x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
             x = torch.tensor(x).float()
+            k = trial.suggest_int("k_"+str(mod), 3, 100)
             G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
 
     if use_attributes:
@@ -194,7 +194,7 @@ def train_builder(trial, model):
         lr=trial.suggest_float("lr", 1e-4, 1e-2),
         weight_decay=trial.suggest_float("weight_decay", 1e-4, 1e-2),
     )
-    criterion = nn.BCELoss()
+    criterion = nn.CrossEntropyLoss()
     return {
         "optimizer": optimizer,
         "criterion": criterion,
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
     fuse_models = False
     use_attributes = True
-    opti = False
+    opti = True
     trials = 10
 
 
@@ -247,8 +247,7 @@ if __name__ == "__main__":
         x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
         dim_features = x.shape[0]
         
-        y = [[0,1] if e == 1 else [1,0] for e in y]
-        y = torch.tensor(y).float()
+        y = torch.from_numpy(y).long()
         train_mask = torch.tensor(train_mask)
         val_mask = torch.tensor(val_mask)
         test_mask = torch.tensor(test_mask)

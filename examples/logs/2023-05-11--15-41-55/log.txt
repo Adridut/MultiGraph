@@ -1,0 +1,26 @@
+[INFO 2023-05-11 15:41:55,018]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-11--15-41-55/log.txt
+[INFO 2023-05-11 15:41:55,018]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs/2023-05-11--15-41-55
+[INFO 2023-05-11 15:41:55,018]-> Random seed is 1683787315
+[INFO 2023-05-11 15:41:55,019]-> A new study created in memory with name: no-name-d681ab3b-3984-4540-9023-2870632156b8
+[WARNING 2023-05-11 15:42:03,033]-> Trial 0 failed with parameters: {"k_['ECG']": 78, "k_['EEG']": 51, "k_['EMO']": 98, "k_['GSR']": 71, "k_['ECG', 'EEG']": 39, "k_['ECG', 'EMO']": 79, "k_['ECG', 'GSR']": 31, "k_['EEG', 'EMO']": 25, "k_['EEG', 'GSR']": 72, "k_['EMO', 'GSR']": 3, "k_['ECG', 'EEG', 'EMO']": 78, "k_['ECG', 'EEG', 'GSR']": 10, "k_['ECG', 'EMO', 'GSR']": 14, "k_['EEG', 'EMO', 'GSR']": 73, "k_['ECG', 'EEG', 'EMO', 'GSR']": 100, 'hidden_dim': 28, 'lr': 0.003914566775559636, 'weight_decay': 0.004318327028375951} because of the following error: RuntimeError('"nll_loss_forward_reduce_cuda_kernel_2d_index" not implemented for \'Double\'').
+Traceback (most recent call last):
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/optuna/study/_optimize.py", line 200, in _run_trial
+    value_or_values = func(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 71, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 83, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/base.py", line 102, in experiment
+    self.train(self.data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 98, in train
+    return super().train(data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 115, in train
+    loss = criterion(outputs[train_mask], labels[train_mask],)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/modules/loss.py", line 1174, in forward
+    return F.cross_entropy(input, target, weight=self.weight,
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/torch/nn/functional.py", line 3029, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+RuntimeError: "nll_loss_forward_reduce_cuda_kernel_2d_index" not implemented for 'Double'
+[WARNING 2023-05-11 15:42:03,034]-> Trial 0 failed with value None.
