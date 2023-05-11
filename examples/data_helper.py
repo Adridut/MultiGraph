@@ -12,7 +12,7 @@ from itertools import groupby
 import random
 
 from sklearn.impute import SimpleImputer
-
+from fancyimpute import KNN, NuclearNormMinimization, SoftImpute, BiScaler
 
 
 
@@ -34,7 +34,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     """
 	convert csv to np array
 	"""
-    with open(os.path.join(dir, "ascertain_multimodal_no_nan.csv")) as file:
+    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
         reader = csv.reader(file)
         data = list(reader)
         columns = np.asarray(data[0])
@@ -122,11 +122,15 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
 
-    X = np.nan_to_num(X, nan=0)
+    X = KNN(k=3).fit_transform(X)
+
 
     scaler = StandardScaler()
     impNan = SimpleImputer(missing_values=0, strategy='mean')
     impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
+
+
+    X = np.nan_to_num(X)
 
     X = normalize(X)
 
@@ -134,11 +138,9 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     X[valid_mask] = impInf.transform(X[valid_mask])
     X[test_mask] = impInf.transform(X[test_mask])
 
-    X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = impNan.transform(X[valid_mask])
-    X[test_mask] = impNan.transform(X[test_mask])
-
-    X = normalize(X)
+    # X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
+    # X[valid_mask] = impNan.transform(X[valid_mask])
+    # X[test_mask] = impNan.transform(X[test_mask])
 
     X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
     X[valid_mask] = scaler.transform(X[valid_mask])

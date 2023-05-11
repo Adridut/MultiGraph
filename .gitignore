@@ -5,6 +5,7 @@ __pycache__/
 
 # Logs
 *.log
+logs/
 
 # Virtual environment
 venv/
@@ -35,4 +36,6 @@ build/
 
 # Windows files
 Thumbs.db
+
+
 

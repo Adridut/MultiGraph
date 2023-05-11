@@ -156,7 +156,7 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, model):
         
 def structure_builder(trial):
 
-    G = Hypergraph(1142)
+    G = Hypergraph(2088)
     for m in selected_modalities:
         for mod in m:
             x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
@@ -207,29 +207,30 @@ if __name__ == "__main__":
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
-    selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
-    ks = [[58], [22], [45], [14], [49, 99], [85,43]]
+    # ks = [[58], [22], [45], [14], [49, 99], [85,43]]
+    ks = [28, 95, 28, 18, 6, 80, 95, 91, 51, 51, 19, 69, 20, 62, 9]
     lrs = [0.00013869861245357332, 0.0011044005450656853, 0.005636798360593478, 0.00941688905278987, 0.0006189295525337117, 0.0026484233717115353]
     wds = [0.0001493683554419846, 0.006182977400901223, 0.004364870880569334, 0.006812298690059751, 0.0004035446353541675, 0.00014742828620655684]
     hds = [19, 8, 13, 15, 2, 11]
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 80
     val_ratio = 10
     test_ratio = 10
     n_classes = 2
-    n_hidden_layers = 42 #8
+    n_hidden_layers = 8 #8
     k = 4 #4, 20    
-    lr = 0.008 #0.01, 0.001
-    weight_decay = 0.009 #5*10**-4 
+    lr = 0.01 #0.01, 0.001
+    weight_decay = 0.004 #5*10**-4 
     n_epoch = 600
     model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
-    fuse_models = False
+    fuse_models = True
     use_attributes = True
-    opti = True
-    trials = 10
+    opti = False
+    trials = 1
 
 
     final_acc = 0
@@ -267,7 +268,7 @@ if __name__ == "__main__":
         task = Task(
             work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
         ).to(device)
-        task.run(n_epoch, 100, "maximize")
+        task.run(n_epoch, 500, "maximize")
 
     else:
         if model_name == "NB" or model_name == "SVM":
@@ -282,7 +283,7 @@ if __name__ == "__main__":
                     # n_hidden_layers = hds[i]
 
                     print_log("loading data: " + str(m))
-                    X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
+                    X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                     model = select_model(feat_dimension=X.shape[0], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name)
 
                     X = torch.tensor(X, requires_grad=True).float()
@@ -292,9 +293,9 @@ if __name__ == "__main__":
 
                     j = 0
                     for mod in m:
-                        x, _, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
+                        x, _, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                         x = torch.tensor(x).float()
-                        # k = ks[i][j]
+                        k = ks[i]
                         G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
                         j += 1
 
