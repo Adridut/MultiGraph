@@ -203,8 +203,8 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities = [['EEG']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
@@ -221,14 +221,14 @@ if __name__ == "__main__":
     val_ratio = 10
     test_ratio = 10
     n_classes = 2
-    n_hidden_layers = 43 #8
+    n_hidden_layers = 8 #8
     k = 4 #4, 20    
-    lr = 0.01 #0.01, 0.001
-    weight_decay = 0.004 #5*10**-4 
+    lr = 0.001 #0.01, 0.001
+    weight_decay = 5*10**-4 
     n_epoch = 1
     model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
     fuse_models = True
-    use_attributes = True
+    use_attributes = False
     opti = False
     trials = 1
 
@@ -295,7 +295,7 @@ if __name__ == "__main__":
                     for mod in m:
                         x, _, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                         x = torch.tensor(x).float()
-                        k = ks[i]
+                        # k = ks[i]
                         G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
                         j += 1
 
