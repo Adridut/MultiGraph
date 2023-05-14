@@ -132,9 +132,9 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
     return res, all_outs
 
 
-def select_model(feat_dimension, n_hidden_layers, n_classes, model):
+def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model):
         if model == "HGNN":
-            return HGNN(feat_dimension, n_hidden_layers, n_classes, use_bn=True)
+            return HGNN(feat_dimension, n_hidden_layers, n_classes, n_conv, use_bn=True)
         elif model == "HGNNP":
             return HGNNP(feat_dimension, n_hidden_layers, n_classes, use_bn=True)
         elif model == "DHGNN":
@@ -203,8 +203,8 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['EEG']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     wds = [0.0001493683554419846, 0.006182977400901223, 0.004364870880569334, 0.006812298690059751, 0.0004035446353541675, 0.00014742828620655684]
     hds = [19, 8, 13, 15, 2, 11]
 
-    label = "arousal"
+    label = "valence"
     train_ratio = 80
     val_ratio = 10
     test_ratio = 10
@@ -225,12 +225,13 @@ if __name__ == "__main__":
     k = 4 #4, 20    
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4 
-    n_epoch = 1
-    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
-    fuse_models = True
+    n_conv = 2
+    n_epoch = 600
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    fuse_models = False
     use_attributes = False
-    opti = False
-    trials = 1
+    opti = True
+    trials = 10
 
 
     final_acc = 0
@@ -252,7 +253,7 @@ if __name__ == "__main__":
         train_mask = torch.tensor(train_mask)
         val_mask = torch.tensor(val_mask)
         test_mask = torch.tensor(test_mask)
-        X = torch.eye(dim_features)
+        # X = torch.eye(dim_features)
 
         X = X.to(device)
         y = y.to(device)
@@ -284,7 +285,7 @@ if __name__ == "__main__":
 
                     print_log("loading data: " + str(m))
                     X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                    model = select_model(feat_dimension=X.shape[0], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name)
+                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv)
 
                     X = torch.tensor(X, requires_grad=True).float()
 
@@ -319,7 +320,7 @@ if __name__ == "__main__":
                     train_mask = torch.tensor(train_mask)
                     val_mask = torch.tensor(val_mask)
                     test_mask = torch.tensor(test_mask)
-                    X = torch.eye(G.num_v)
+                    # X = torch.eye(G.num_v)
 
                     G.to(device)
                     X = X.to(device)

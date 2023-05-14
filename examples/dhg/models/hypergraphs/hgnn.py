@@ -25,14 +25,19 @@ class HGNN(nn.Module):
         in_channels: int,
         hid_channels: int,
         num_classes: int,
+        num_conv: int,
         use_bn: bool = False,
         drop_rate: float = 0.5,
     ) -> None:
         super().__init__()
         self.layers = nn.ModuleList()
         self.layers.append(
-            HGNNConv(in_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate)
+                HGNNConv(in_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate)
         )
+        for i in range(num_conv-2):
+            self.layers.append(
+                HGNNConv(hid_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate)
+            )
         self.layers.append(
             HGNNConv(hid_channels, num_classes, use_bn=use_bn, is_last=True)
         )

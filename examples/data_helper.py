@@ -123,13 +123,13 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
 
 
     # Fill nan values
-    X = SoftImpute().fit_transform(X, y)
-
-
+    
     scaler = StandardScaler()
     impNan = SimpleImputer(missing_values=0, strategy='mean')
     impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
+    
 
+    # X = KNN(k=3).fit_transform(X, y)
 
     X = np.nan_to_num(X)
 
@@ -139,9 +139,9 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     X[valid_mask] = impInf.transform(X[valid_mask])
     X[test_mask] = impInf.transform(X[test_mask])
 
-    # X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
-    # X[valid_mask] = impNan.transform(X[valid_mask])
-    # X[test_mask] = impNan.transform(X[test_mask])
+    X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = impNan.transform(X[valid_mask])
+    X[test_mask] = impNan.transform(X[test_mask])
 
     X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
     X[valid_mask] = scaler.transform(X[valid_mask])
