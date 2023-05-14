@@ -230,7 +230,7 @@ if __name__ == "__main__":
     model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fuse_models = False
     use_attributes = False
-    opti = True
+    opti = False
     trials = 10
 
 
@@ -246,8 +246,8 @@ if __name__ == "__main__":
         num_classes = 2
 
 
-        x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
-        dim_features = x.shape[0]
+        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        dim_features = X.shape[1]
         
         y = torch.from_numpy(y).long()
         train_mask = torch.tensor(train_mask)
