@@ -204,11 +204,11 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities = [['EEG']]
+    # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     # ks = [[58], [22], [45], [14], [49, 99], [85,43]]
     ks = [28, 95, 28, 18, 6, 80, 95, 91, 51, 51, 19, 69, 20, 62, 9]
@@ -227,10 +227,10 @@ if __name__ == "__main__":
     weight_decay = 5*10**-4 
     n_conv = 2
     n_epoch = 600
-    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
-    fuse_models = False
-    use_attributes = False
-    opti = True
+    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
+    fuse_models = True
+    use_attributes = True
+    opti = False
     trials = 10
 
 
@@ -246,8 +246,8 @@ if __name__ == "__main__":
         num_classes = 2
 
 
-        x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
-        dim_features = x.shape[0]
+        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        dim_features = X.shape[1]
         
         y = torch.from_numpy(y).long()
         train_mask = torch.tensor(train_mask)
