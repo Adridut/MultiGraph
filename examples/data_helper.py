@@ -125,23 +125,27 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     # Fill nan values
     
     scaler = StandardScaler()
-    impNan = SimpleImputer(missing_values=0, strategy='mean')
-    impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
+    # impNan = SimpleImputer(missing_values=0, strategy='mean')
+    # impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
     
 
     # X = KNN(k=3).fit_transform(X, y)
+
+    for i in range(X.shape[1]):
+        column_mask = np.isnan(X[:, i])
+        X[column_mask, i] = np.nanmean(X, axis=0)[i]
 
     X = np.nan_to_num(X)
 
     X = normalize(X)
 
-    X[train_mask] = impInf.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = impInf.transform(X[valid_mask])
-    X[test_mask] = impInf.transform(X[test_mask])
+    # X[train_mask] = impInf.fit_transform(X[train_mask], y[train_mask])
+    # X[valid_mask] = impInf.transform(X[valid_mask])
+    # X[test_mask] = impInf.transform(X[test_mask])
 
-    X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
-    X[valid_mask] = impNan.transform(X[valid_mask])
-    X[test_mask] = impNan.transform(X[test_mask])
+    # X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
+    # X[valid_mask] = impNan.transform(X[valid_mask])
+    # X[test_mask] = impNan.transform(X[test_mask])
 
     X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
     X[valid_mask] = scaler.transform(X[valid_mask])
