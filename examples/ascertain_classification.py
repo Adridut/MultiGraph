@@ -203,12 +203,12 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     # ks = [[58], [22], [45], [14], [49, 99], [85,43]]
     ks = [28, 95, 28, 18, 6, 80, 95, 91, 51, 51, 19, 69, 20, 62, 9]
@@ -227,9 +227,9 @@ if __name__ == "__main__":
     weight_decay = 5*10**-4 
     n_conv = 2
     n_epoch = 600
-    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fuse_models = True
-    use_attributes = True
+    use_attributes = False
     opti = False
     trials = 1
 

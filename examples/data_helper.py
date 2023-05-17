@@ -122,47 +122,35 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     valid_mask =  np.logical_and(np.logical_not(train_mask),  np.logical_not(test_mask))
 
 
-    # Fill nan values
     
     scaler = StandardScaler()
-    # impNan = SimpleImputer(missing_values=0, strategy='mean')
-    # impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
-    
+    impInf = SimpleImputer(missing_values=np.inf, strategy='mean')
 
-    # X = KNN(k=3).fit_transform(X, y)
+    # Replace nan values with mean of clumns sharing the same label
+    label_means = {}
+    unique_labels = np.unique(y)
+    for label in unique_labels:
+        label_means[label] = np.nanmean(X[y == label], axis=0)
 
-    for i in range(X.shape[1]):
-        column_mask = np.isnan(X[:, i])
-        X[column_mask, i] = np.nanmean(X, axis=0)[i]
+    for i in range(X.shape[0]):
+        label = y[i]
+        mask = np.isnan(X[i])
+        X[i, mask] = label_means[label][mask]
 
+    # Deal with posinf and neginf
     X = np.nan_to_num(X)
 
     X = normalize(X)
 
-    # X[train_mask] = impInf.fit_transform(X[train_mask], y[train_mask])
-    # X[valid_mask] = impInf.transform(X[valid_mask])
-    # X[test_mask] = impInf.transform(X[test_mask])
+    # Deal with inf
+    X[train_mask] = impInf.fit_transform(X[train_mask], y[train_mask])
+    X[valid_mask] = impInf.transform(X[valid_mask])
+    X[test_mask] = impInf.transform(X[test_mask])
 
-    # X[train_mask] = impNan.fit_transform(X[train_mask], y[train_mask])
-    # X[valid_mask] = impNan.transform(X[valid_mask])
-    # X[test_mask] = impNan.transform(X[test_mask])
-
+    # Scale
     X[train_mask] = scaler.fit_transform(X[train_mask], y[train_mask])
     X[valid_mask] = scaler.transform(X[valid_mask])
     X[test_mask] = scaler.transform(X[test_mask])
-
-
-
-
-
-
-
-
-
-
-    # X[train_mask] = lda.fit_transform(X[train_mask], y[train_mask])
-    # X[valid_mask] = lda.transform(X[valid_mask])
-    # X[test_mask] = lda.transform(X[test_mask])
 
 
     return X, y, train_mask, test_mask, valid_mask, subject_attributes, video_attributes, low_personality_attributes, high_personality_attributes
