@@ -52,5 +52,5 @@ class HGNN(nn.Module):
         for layer in self.layers:
             X = layer(X, hg)
 
-        X = F.softmax(X)
+        X = F.softmax(X, dim=1)
         return X

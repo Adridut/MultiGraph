@@ -137,6 +137,8 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model):
             return HGNN(feat_dimension, n_hidden_layers, n_classes, n_conv, use_bn=True)
         elif model == "HGNNP":
             return HGNNP(feat_dimension, n_hidden_layers, n_classes, use_bn=True)
+        elif model == "FC":
+            return FC(feat_dimension, n_classes)
         elif model == "DHGNN":
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
@@ -228,6 +230,7 @@ if __name__ == "__main__":
     n_conv = 2
     n_epoch = 600
     model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = False
     opti = False
@@ -301,10 +304,10 @@ if __name__ == "__main__":
                         j += 1
 
                     if use_attributes:
-                        # for a in sa:
-                        #     G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
-                        # for a in va:
-                        #     G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+                        for a in sa:
+                            G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+                        for a in va:
+                            G.add_hyperedges(a, group_name="video_attributes_"+str(a))
                         z = 0
                         for a in lpa:
                             G.add_hyperedges(a, group_name="low_personality_attributes_"+str(z))
@@ -337,9 +340,43 @@ if __name__ == "__main__":
 
                 if fuse_models:
                     print_log("fusing models")
-                    inputs = torch.cat(inputs, 1)
-                    net = FC(inputs.size()[1], n_classes)
-                    final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
+
+                    if fusion_model=="HGNNP":
+                        G = Hypergraph(2088)
+                        i = 0
+
+                        for a in sa:
+                            G.add_hyperedges(a, group_name="subject_attributes_")
+                        for a in va:
+                            G.add_hyperedges(a, group_name="video_attributes_")
+
+                        for a in lpa:
+                            G.add_hyperedges(a, group_name="low_personality_attributes_")
+                            i += 1
+
+                        i = 0
+                        for a in hpa:
+                            G.add_hyperedges(a, group_name="high_personality_attributes_")
+                            i += 1
+
+                        j = 0
+                        for i in inputs:
+                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j))
+                            j += 1
+
+                        inputs = torch.cat(inputs, 1)
+                        G.add_hyperedges_from_feature_kNN(inputs, k=k, group_name="modality_fusion")
+
+
+                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv)
+
+                    final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, fusion_model)
+                    print(G._fetch_W_of_group("modality_fusion"))
+                    # print(G._fetch_W_of_group("modality_fusion"), G._fetch_W_of_group("modality_0"), 
+                    #       G._fetch_W_of_group("modality_1"), G._fetch_W_of_group("modality_2"),
+                    #       G._fetch_W_of_group("modality_3"), 
+                    #       G._fetch_W_of_group("high_personality_attributes_"), G._fetch_W_of_group("low_personality_attributes_"),
+                    #        G._fetch_W_of_group("video_attributes_"), G._fetch_W_of_group("subject_attributes_"))
                     final_acc += final_res['accuracy']
                     final_f1 += final_res['f1_score']
 

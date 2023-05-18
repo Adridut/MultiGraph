@@ -34,7 +34,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     """
 	convert csv to np array
 	"""
-    with open(os.path.join(dir, "ascertain_multimodal_no_nan.csv")) as file:
+    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
         reader = csv.reader(file)
         data = list(reader)
         columns = np.asarray(data[0])
@@ -66,13 +66,13 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     low_personality_attributes = []
     high_personality_attributes = []
 
-    # for i in range(n_subjects):
-    #     subject_id = []
-    #     subject_attributes.append(subject_id)
+    for i in range(n_subjects):
+        subject_id = []
+        subject_attributes.append(subject_id)
 
-    # for i in range(n_cases):
-    #     video_id = []
-    #     video_attributes.append(video_id)
+    for i in range(n_cases):
+        video_id = []
+        video_attributes.append(video_id)
 
     # 5 = number of personality traits
     for i in range(5):
@@ -90,9 +90,9 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
 
     for i in range(len(all_data[0:, 4:])):
         subject_id = int(all_data[i][0])
-        # subject_attributes[subject_id].append(i)
+        subject_attributes[subject_id].append(i)
         case_id = int(all_data[i][1])
-        # video_attributes[case_id].append(i)
+        video_attributes[case_id].append(i)
         for j in range(len(low_personality_attributes)):
             personality_trait = all_data[i][all_data.shape[1]-j-1]
             if j == 0 or j == 3:
