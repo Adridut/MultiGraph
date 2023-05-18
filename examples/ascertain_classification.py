@@ -15,8 +15,10 @@ from dhg.models import HGNN, HGNNP
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
 
 from dhg.experiments import HypergraphVertexClassificationTask as Task
+import optuna
+from optuna_dashboard import run_server
+
 import torch.nn as nn
-import torch.optim as optim
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
@@ -161,7 +163,7 @@ def structure_builder(trial):
     G = Hypergraph(2088)
     for m in selected_modalities:
         for mod in m:
-            x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+            x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
             x = torch.tensor(x).float()
             k = trial.suggest_int("k_"+str(mod), 3, 100)
             G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
@@ -187,7 +189,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, use_bn=True).to(device)
+    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9)).to(device)
 
 
 def train_builder(trial, model):
@@ -205,10 +207,10 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -233,7 +235,7 @@ if __name__ == "__main__":
     fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = False
-    opti = False
+    opti = True
     trials = 1
 
 
@@ -243,21 +245,21 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        # work_root = "D:\Dev\THU-HyperG\examples\logs"
-        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs"
+        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         num_classes = 2
 
 
-        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
         dim_features = X.shape[1]
         
         y = torch.from_numpy(y).long()
         train_mask = torch.tensor(train_mask)
         val_mask = torch.tensor(val_mask)
         test_mask = torch.tensor(test_mask)
-        # X = torch.eye(dim_features)
-
+        X = torch.tensor(X).float()
         X = X.to(device)
         y = y.to(device)
         # hg_base = Hypergraph(data["num_vertices"], data["edge_list"])
@@ -267,12 +269,15 @@ if __name__ == "__main__":
             "train_mask": train_mask,
             "val_mask": val_mask,
             "test_mask": test_mask,
+            "storage": "sqlite:///db.sqlite3"
         }
         evaluator = Evaluator(["accuracy", "f1_score"])
         task = Task(
             work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
         ).to(device)
+
         task.run(n_epoch, 500, "maximize")
+
 
     else:
         if model_name == "NB" or model_name == "SVM":
