@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 import dhg
@@ -52,5 +51,5 @@ class HGNN(nn.Module):
         for layer in self.layers:
             X = layer(X, hg)
 
-        X = F.sigmoid(X)
+        X = torch.sigmoid(X)
         return X

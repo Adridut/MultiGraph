@@ -3,7 +3,6 @@ import torch.nn as nn
 
 import dhg
 from dhg.nn import HGNNPConv
-import torch.nn.functional as F
 
 
 
@@ -45,5 +44,5 @@ class HGNNP(nn.Module):
         for layer in self.layers:
             X = layer(X, hg)
 
-        X = F.sigmoid(X)
+        X = torch.sigmoid(X)
         return X

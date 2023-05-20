@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 
 
 class FC(nn.Module):
@@ -12,5 +11,5 @@ class FC(nn.Module):
 
     def forward(self, x):
         x = self.fc(x)
-        x = F.sigmoid(x)
+        x = torch.sigmoid(x)
         return x

@@ -229,10 +229,10 @@ if __name__ == "__main__":
     weight_decay = 5*10**-4 
     n_conv = 2
     n_epoch = 600
-    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
-    fusion_model = "FC"
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    fusion_model = "HGNNP"
     fuse_models = True
-    use_attributes = False
+    use_attributes = True
     opti = False
     trials = 1
 
