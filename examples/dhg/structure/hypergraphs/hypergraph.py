@@ -350,7 +350,7 @@ class Hypergraph(BaseHypergraph):
             )
         self._clear_cache(group_name)
 
-    def add_hyperedges_from_feature_kNN(self, feature: torch.Tensor, k: int, group_name: str = "main"):
+    def add_hyperedges_from_feature_kNN(self, feature: torch.Tensor, k: int, group_name: str = "main", e_weight: float = 1):
         r"""Add hyperedges from the feature matrix by k-NN. Each hyperedge is constructed by the central vertex and its :math:`k`-Nearest Neighbor vertices.
 
         Args:
@@ -362,7 +362,8 @@ class Hypergraph(BaseHypergraph):
             feature.shape[0] == self.num_v
         ), "The number of vertices in the feature matrix is not equal to the number of vertices in the hypergraph."
         e_list = Hypergraph._e_list_from_feature_kNN(feature, k)
-        self.add_hyperedges(e_list, group_name=group_name)
+        e_weight = [e_weight] * len(e_list)
+        self.add_hyperedges(e_list, e_weight=e_weight, group_name=group_name)
 
     def add_hyperedges_from_graph(self, graph: "Graph", group_name: str = "main"):
         r"""Add hyperedges from edges in the graph. Each edge in the graph is treated as a hyperedge.

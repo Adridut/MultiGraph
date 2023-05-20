@@ -232,7 +232,7 @@ if __name__ == "__main__":
     model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = True
-    use_attributes = True
+    use_attributes = False
     opti = False
     trials = 1
 
@@ -286,6 +286,7 @@ if __name__ == "__main__":
                 print_log("trial: " + str(trial))
                 i = 0
                 inputs = []
+                accs = []
                 for m in selected_modalities:
                     # n_hidden_layers = hds[i]
 
@@ -338,6 +339,7 @@ if __name__ == "__main__":
                     res, out = run(device, X, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
                     all_accs[i] += res['accuracy']
                     all_f1s[i] += res['f1_score']
+                    accs.append(res['accuracy'])
                     inputs.append(out)
                     i += 1
 
@@ -364,7 +366,7 @@ if __name__ == "__main__":
 
                         j = 0
                         for i in inputs:
-                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j))
+                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j), e_weight=accs[j])
                             j += 1
 
                         inputs = torch.cat(inputs, 1)
