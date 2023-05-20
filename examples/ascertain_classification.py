@@ -15,8 +15,6 @@ from dhg.models import HGNN, HGNNP
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
 
 from dhg.experiments import HypergraphVertexClassificationTask as Task
-import optuna
-from optuna_dashboard import run_server
 
 import torch.nn as nn
 
@@ -207,10 +205,10 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -220,10 +218,10 @@ if __name__ == "__main__":
     wds = [0.0001493683554419846, 0.006182977400901223, 0.004364870880569334, 0.006812298690059751, 0.0004035446353541675, 0.00014742828620655684]
     hds = [19, 8, 13, 15, 2, 11]
 
-    label = "valence"
-    train_ratio = 80
-    val_ratio = 10
-    test_ratio = 10
+    label = "arousal"
+    train_ratio = 70
+    val_ratio = 15
+    test_ratio = 15
     n_classes = 2
     n_hidden_layers = 8 #8
     k = 4 #4, 20    
@@ -231,11 +229,11 @@ if __name__ == "__main__":
     weight_decay = 5*10**-4 
     n_conv = 2
     n_epoch = 600
-    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "HGNNP"
+    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
+    fusion_model = "FC"
     fuse_models = True
     use_attributes = False
-    opti = True
+    opti = False
     trials = 1
 
 
@@ -371,17 +369,13 @@ if __name__ == "__main__":
 
                         inputs = torch.cat(inputs, 1)
                         G.add_hyperedges_from_feature_kNN(inputs, k=k, group_name="modality_fusion")
+                    
+                    else:
+                        inputs = torch.cat(inputs, 1)
 
-
-                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv)
+                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv)
 
                     final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, fusion_model)
-                    print(G._fetch_W_of_group("modality_fusion"))
-                    # print(G._fetch_W_of_group("modality_fusion"), G._fetch_W_of_group("modality_0"), 
-                    #       G._fetch_W_of_group("modality_1"), G._fetch_W_of_group("modality_2"),
-                    #       G._fetch_W_of_group("modality_3"), 
-                    #       G._fetch_W_of_group("high_personality_attributes_"), G._fetch_W_of_group("low_personality_attributes_"),
-                    #        G._fetch_W_of_group("video_attributes_"), G._fetch_W_of_group("subject_attributes_"))
                     final_acc += final_res['accuracy']
                     final_f1 += final_res['f1_score']
 

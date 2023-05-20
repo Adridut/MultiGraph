@@ -45,5 +45,5 @@ class HGNNP(nn.Module):
         for layer in self.layers:
             X = layer(X, hg)
 
-        X = F.softmax(X, dim=1)
+        X = F.sigmoid(X)
         return X

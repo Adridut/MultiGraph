@@ -1219,6 +1219,7 @@ class Hypergraph(BaseHypergraph):
             L_HGNN = sparse_dropout(self.L_HGNN, drop_rate)
         else:
             L_HGNN = self.L_HGNN
+
         return L_HGNN.mm(X)
 
     def smoothing_with_HGNN_of_group(self, group_name: str, X: torch.Tensor, drop_rate: float = 0.0) -> torch.Tensor:
