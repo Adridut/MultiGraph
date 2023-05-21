@@ -228,7 +228,7 @@ if __name__ == "__main__":
     fusion_model = "HGNNP"
     fuse_models = False
     use_attributes = False
-    opti = False
+    opti = True
     trials = 10
 
 
@@ -245,24 +245,23 @@ if __name__ == "__main__":
         num_classes = 2
 
 
-        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
         dim_features = X.shape[1]
         
-        y = torch.from_numpy(y).long()
+        Y = torch.from_numpy(Y).long()
         train_mask = torch.tensor(train_mask)
         val_mask = torch.tensor(val_mask)
         test_mask = torch.tensor(test_mask)
         X = torch.tensor(X).float()
         X = X.to(device)
-        y = y.to(device)
+        Y = Y.to(device)
         # hg_base = Hypergraph(data["num_vertices"], data["edge_list"])
         input_data = {
             "features": X,
-            "labels": y,
+            "labels": Y,
             "train_mask": train_mask,
             "val_mask": val_mask,
             "test_mask": test_mask,
-            "storage": "sqlite:///db.sqlite3"
         }
         evaluator = Evaluator(["accuracy", "f1_score"])
         task = Task(
