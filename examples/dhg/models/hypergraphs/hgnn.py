@@ -27,18 +27,19 @@ class HGNN(nn.Module):
         num_conv: int,
         use_bn: bool = False,
         drop_rate: float = 0.5,
+        he_dropout: float = 0,
     ) -> None:
         super().__init__()
         self.layers = nn.ModuleList()
         self.layers.append(
-                HGNNConv(in_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate)
+                HGNNConv(in_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate, he_dropout=he_dropout)
         )
         for i in range(num_conv-2):
             self.layers.append(
-                HGNNConv(hid_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate)
+                HGNNConv(hid_channels, hid_channels, use_bn=use_bn, drop_rate=drop_rate, he_dropout=he_dropout)
             )
         self.layers.append(
-            HGNNConv(hid_channels, num_classes, use_bn=use_bn, is_last=True)
+            HGNNConv(hid_channels, num_classes, use_bn=use_bn, is_last=True, he_dropout=he_dropout)
         )
 
     def forward(self, X: torch.Tensor, hg: "dhg.Hypergraph") -> torch.Tensor:
