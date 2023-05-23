@@ -90,7 +90,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, model_name, test=True)
+    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
@@ -108,7 +108,8 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[train_idx]
-        outs = net(ids=ids, feats=X, edge_dict=A, G=A, ite=epoch)
+        edge_dict = torch.tensor(A.e[0]).long()
+        outs = net(ids=ids, feats=X, edge_dict=edge_dict, G=A, ite=epoch)
     else:
         outs, _ = net(X, A)
         outs = outs[train_idx]
@@ -131,7 +132,8 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[idx]
-        all_outs = net(ids=ids, feats=X, edge_dict=A, G=A, ite=epoch)
+        edge_dict = torch.tensor(A.e[0]).long()
+        all_outs = net(ids=ids, feats=X, edge_dict=edge_dict, G=A, ite=epoch)
         outs = all_outs
     else:
         all_outs, _ = net(X, A)
@@ -221,10 +223,10 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -241,13 +243,13 @@ if __name__ == "__main__":
     n_conv = 2
     drop_rate = 0.5
     he_dropout = 0.5
-    n_epoch = 1000
+    n_epoch = 10
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = False
     use_attributes = False
     opti = False
-    trials = 10
+    trials = 1
 
 
     final_acc = 0

@@ -171,7 +171,7 @@ class DHGLayer(GraphConvolution):
         """
         if self.structure is None:
             _N = feats.size(0)
-            idx = torch.LongTensor([sample_ids(edge_dict(i), self.ks) for i in range(_N)])    # (_N, ks)
+            idx = torch.LongTensor([sample_ids(edge_dict[i], self.ks) for i in range(_N)])    # (_N, ks)
             self.structure = idx
         else:
             idx = self.structure
@@ -207,7 +207,7 @@ class DHGLayer(GraphConvolution):
         if self.kmeans is None:
             _N = feats.size(0)
             np_feats = feats.detach().cpu().numpy()
-            kmeans = KMeans(n_clusters=self.n_cluster, random_state=0, n_jobs=-1).fit(np_feats)
+            kmeans = KMeans(n_clusters=self.n_cluster, random_state=0).fit(np_feats)
             centers = kmeans.cluster_centers_
             dis = euclidean_distances(np_feats, centers)
             _, cluster_center_dict = torch.topk(torch.Tensor(dis), self.n_center, largest=False)
