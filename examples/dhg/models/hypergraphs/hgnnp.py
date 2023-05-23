@@ -51,4 +51,4 @@ class HGNNP(nn.Module):
             X = layer(X, hg)
 
         X = torch.sigmoid(X)
-        return X
+        return X, hg

@@ -75,11 +75,11 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     best_epoch, best_val = 0, 0
     for epoch in range(n_epoch):
         # train
-        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name)
+        _, G = train(net, X, G, lbl, train_mask, optimizer, epoch, model_name)
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res, _ = infer(net, X, G, lbl, val_mask, model_name)
+                val_res, _, G = infer(net, X, G, lbl, val_mask, model_name)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -90,7 +90,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, model_name, test=True)
+    res, all_outs, G = infer(net, X, G, lbl, test_mask, model_name, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
@@ -103,14 +103,14 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
     if model_name == "FC":
         outs = net(X)   
     else:
-        outs = net(X, A)
+        outs, G = net(X, A)
 
     outs, lbls = outs[train_idx], lbls[train_idx]
     loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
     print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
-    return loss.item()
+    return loss.item(), G
 
 
 @torch.no_grad()
@@ -120,7 +120,7 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
     if model_name == "FC":
         all_outs = net(X)
     else:
-        all_outs = net(X, A)
+        all_outs, G = net(X, A)
 
     outs, lbls = all_outs[idx], lbls[idx]
     lbls = torch.argmax(lbls, dim=1)
@@ -129,7 +129,7 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
         res = evaluator.validate(lbls, outs)
     else:
         res = evaluator.test(lbls, outs)
-    return res, all_outs
+    return res, all_outs, G
 
 
 def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop_rate, he_dropout):
@@ -205,10 +205,10 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -223,12 +223,14 @@ if __name__ == "__main__":
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4 
     n_conv = 2
+    drop_rate = 0.5
+    he_dropout = 0.5
     n_epoch = 1000
-    model_name = "NB" #HGNN, HGNNP, NB, SVM
+    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
-    fuse_models = False
+    fuse_models = True
     use_attributes = False
-    opti = True
+    opti = False
     trials = 10
 
 
@@ -286,7 +288,7 @@ if __name__ == "__main__":
 
                     print_log("loading data: " + str(m))
                     X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv)
+                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
 
                     X = torch.tensor(X, requires_grad=True).float()
 
@@ -369,7 +371,7 @@ if __name__ == "__main__":
                     else:
                         inputs = torch.cat(inputs, 1)
 
-                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv)
+                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
 
                     final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, fusion_model)
                     final_acc += final_res['accuracy']

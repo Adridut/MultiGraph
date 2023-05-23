@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 
-
 import dhg
 from dhg.nn import HGNNConv
+from dhg.structure import Hypergraph
+
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -53,4 +54,5 @@ class HGNN(nn.Module):
             X = layer(X, hg)
 
         X = torch.sigmoid(X)
-        return X
+
+        return X, hg
