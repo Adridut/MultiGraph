@@ -22,6 +22,7 @@ def sample_ids(ids, k):
     :return: sampled indexes
     """
     df = pd.DataFrame(ids)
+    print(ids)
     sampled_ids = df.sample(k - 1, replace=True).values
     sampled_ids = sampled_ids.flatten().tolist()
     sampled_ids.append(ids[-1])  # must sample the centroid node itself

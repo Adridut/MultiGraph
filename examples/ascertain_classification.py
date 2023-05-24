@@ -33,7 +33,6 @@ from dhg.random import set_seed
 
 # set_seed(0)
 
-
 def print_log(message):
     """
     :param message: str,
@@ -108,8 +107,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[train_idx]
-        edge_dict = torch.tensor(A.e[0]).long()
-        outs = net(ids=ids, feats=X, edge_dict=edge_dict, G=A, ite=epoch)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A, ite=epoch)
     else:
         outs, _ = net(X, A)
         outs = outs[train_idx]
@@ -132,8 +130,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[idx]
-        edge_dict = torch.tensor(A.e[0]).long()
-        all_outs = net(ids=ids, feats=X, edge_dict=edge_dict, G=A, ite=epoch)
+        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A, ite=epoch)
         outs = all_outs
     else:
         all_outs, _ = net(X, A)
@@ -169,9 +166,8 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             adjacent_centers=1,
             n_layers=2,
             layer_spec=[256],
-            dropout_rate=0.5,
+            dropout_rate=drop_rate,
             has_bias=True,
-            drop_rate=drop_rate
             )
         
 def structure_builder(trial):
@@ -224,7 +220,7 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['EEG']]
+    # selected_modalities = [['ECG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
@@ -275,7 +271,6 @@ if __name__ == "__main__":
         X = torch.tensor(X).float()
         X = X.to(device)
         Y = Y.to(device)
-        # hg_base = Hypergraph(data["num_vertices"], data["edge_list"])
         input_data = {
             "features": X,
             "labels": Y,
@@ -308,18 +303,11 @@ if __name__ == "__main__":
                     X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
                     model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
 
-                    X = torch.tensor(X, requires_grad=True).float()
+                    X = torch.tensor(X).float()
 
                     print_log("generating hypergraph: " + str(m))
-                    G = Hypergraph(X.size()[0])
-
-                    j = 0
-                    for mod in m:
-                        x, _, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                        x = torch.tensor(x).float()
-                        # k = ks[i]
-                        G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
-                        j += 1
+                    G = Hypergraph(X.size()[0], device=device)
+                    G.add_hyperedges_from_feature_kNN(X, k=k)
 
                     if use_attributes:
                         for a in sa:

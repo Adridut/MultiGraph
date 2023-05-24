@@ -334,6 +334,7 @@ class Hypergraph(BaseHypergraph):
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.
         """
         e_list = self._format_e_list(e_list)
+        self.e_list = e_list
         if e_weight is None:
             e_weight = [1.0] * len(e_list)
         elif type(e_weight) in (int, float):
@@ -524,6 +525,11 @@ class Hypergraph(BaseHypergraph):
                 e_weight.extend(_e[1])
             self.cache["e"] = (e_list, e_weight)
         return self.cache["e"]
+    
+    def e_list(self) -> List[List[int]]:
+        r"""Return all hyperedges in the hypergraph.
+        """
+        return self.e_list
 
     def e_of_group(self, group_name: str) -> Tuple[List[List[int]], List[float]]:
         r"""Return all hyperedges and weights of the specified hyperedge group.
