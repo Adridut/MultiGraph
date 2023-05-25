@@ -1706,3 +1706,4 @@ class Hypergraph(BaseHypergraph):
         X = self.v2e_of_group(group_name, X, v2e_aggr, v2e_weight, e_weight, drop_rate=v2e_drop_rate)
         X = self.e2v_of_group(group_name, X, e2v_aggr, e2v_weight, drop_rate=e2v_drop_rate)
         return X
+    

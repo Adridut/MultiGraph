@@ -256,64 +256,12 @@ class DHGLayer(GraphConvolution):
         x = self._fc(x)                                                 # (N, d')
         return x
 
-
-# class HGNN_conv(nn.Module):
-#     r"""The HGNN convolution layer proposed in `Hypergraph Neural Networks <https://arxiv.org/pdf/1809.09401>`_ paper (AAAI 2019).
-#     Matrix Format:
-
-#     .. math::
-#         \mathbf{X}^{\prime} = \sigma \left( \mathbf{D}_v^{-\frac{1}{2}} \mathbf{H} \mathbf{W}_e \mathbf{D}_e^{-1} 
-#         \mathbf{H}^\top \mathbf{D}_v^{-\frac{1}{2}} \mathbf{X} \mathbf{\Theta} \right).
-
-#     where :math:`\mathbf{X}` is the input vertex feature matrix, :math:`\mathbf{H}` is the hypergraph incidence matrix, 
-#     :math:`\mathbf{W}_e` is a diagonal hyperedge weight matrix, :math:`\mathbf{D}_v` is a diagonal vertex degree matrix, 
-#     :math:`\mathbf{D}_e` is a diagonal hyperedge degree matrix, :math:`\mathbf{\Theta}` is the learnable parameters.
-
-#     Args:
-#         ``in_channels`` (``int``): :math:`C_{in}` is the number of input channels.
-#         ``out_channels`` (int): :math:`C_{out}` is the number of output channels.
-#         ``bias`` (``bool``): If set to ``False``, the layer will not learn the bias parameter. Defaults to ``True``.
-#         ``use_bn`` (``bool``): If set to ``True``, the layer will use batch normalization. Defaults to ``False``.
-#         ``drop_rate`` (``float``): If set to a positive number, the layer will use dropout. Defaults to ``0.5``.
-#         ``is_last`` (``bool``): If set to ``True``, the layer will not apply the final activation and dropout functions. Defaults to ``False``.
-#     """
-
-#     def __init__(self, **kwargs):
-#         super().__init__()
-
-#         self.dim_in = kwargs['dim_in']
-#         self.dim_out = kwargs['dim_out']
-#         self.fc = nn.Linear(self.dim_in, self.dim_out, bias=kwargs['has_bias'])
-#         self.dropout = nn.Dropout(p=0.5)
-#         self.activation = kwargs['activation']
-
-#         self.is_last = is_last
-#         self.bn = nn.BatchNorm1d(out_channels) if use_bn else None
-#         self.act = nn.ReLU(inplace=True)
-#         self.drop = nn.Dropout(drop_rate)
-#         self.theta = nn.Linear(in_channels, out_channels, bias=bias)
-
-#     def forward(self, ids, X, edge_dict, hg, ite) -> torch.Tensor:
-#         r"""The forward function.
-
-#         Args:
-#             X (``torch.Tensor``): Input vertex feature matrix. Size :math:`(N, C_{in})`.
-#             hg (``dhg.Hypergraph``): The hypergraph structure that contains :math:`N` vertices.
-#         """
-#         X = self.theta(X)
-#         if self.bn is not None:
-#             X = self.bn(X)
-#         X = hg.smoothing_with_HGNN(X)
-#         if not self.is_last:
-#             X = self.drop(self.act(X))
-#         return X
     
 class HGNN_conv(nn.Module):
     """
     A HGNN layer
     """
     def __init__(self, **kwargs):
-        
         super(HGNN_conv, self).__init__()
 
         self.dim_in = kwargs['dim_in']
@@ -326,7 +274,7 @@ class HGNN_conv(nn.Module):
     def forward(self, ids, feats, edge_dict, G, ite):
         x = feats
         x = self.activation(self.fc(x))
-        x = G.smoothing_with_HGNN(x)
+        # G = G.to_dense().permute(1, 0)
         # x = G.matmul(x)
         x = self.dropout(x)
         return x

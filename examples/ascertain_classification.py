@@ -107,7 +107,8 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[train_idx]
-        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A, ite=epoch)
+        G = torch.Tensor(A.e_list)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch)
     else:
         outs, _ = net(X, A)
         outs = outs[train_idx]
@@ -130,7 +131,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)[idx]
-        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A, ite=epoch)
+        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch)
         outs = all_outs
     else:
         all_outs, _ = net(X, A)
@@ -156,16 +157,16 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
         elif model == "DHGNN":
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=128,
-            k_nearest=64,
-            k_cluster=64,
+            k_structured=8,
+            k_nearest=4,
+            k_cluster=4,
             wu_knn=0,
             wu_kmeans=10,
             wu_struct=5,
             clusters=400,
             adjacent_centers=1,
             n_layers=2,
-            layer_spec=[256],
+            layer_spec=[16],
             dropout_rate=drop_rate,
             has_bias=True,
             )
@@ -239,10 +240,10 @@ if __name__ == "__main__":
     n_conv = 2
     drop_rate = 0.5
     he_dropout = 0.5
-    n_epoch = 10
+    n_epoch = 1
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "HGNNP"
-    fuse_models = False
+    fusion_model = "FC"
+    fuse_models = True
     use_attributes = False
     opti = False
     trials = 1
@@ -352,19 +353,20 @@ if __name__ == "__main__":
                         G = Hypergraph(2088)
                         i = 0
 
-                        for a in sa:
-                            G.add_hyperedges(a, group_name="subject_attributes_")
-                        for a in va:
-                            G.add_hyperedges(a, group_name="video_attributes_")
+                        if use_attributes:
+                            for a in sa:
+                                G.add_hyperedges(a, group_name="subject_attributes_")
+                            for a in va:
+                                G.add_hyperedges(a, group_name="video_attributes_")
 
-                        for a in lpa:
-                            G.add_hyperedges(a, group_name="low_personality_attributes_")
-                            i += 1
+                            for a in lpa:
+                                G.add_hyperedges(a, group_name="low_personality_attributes_")
+                                i += 1
 
-                        i = 0
-                        for a in hpa:
-                            G.add_hyperedges(a, group_name="high_personality_attributes_")
-                            i += 1
+                            i = 0
+                            for a in hpa:
+                                G.add_hyperedges(a, group_name="high_personality_attributes_")
+                                i += 1
 
                         j = 0
                         for i in inputs:
