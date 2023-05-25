@@ -130,9 +130,9 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
         outs = all_outs[idx]
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
-        ids = torch.tensor(ids).long().to(device)[idx]
+        ids = torch.tensor(ids).long().to(device)
         all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch)
-        outs = all_outs
+        outs = all_outs[idx]
     else:
         all_outs, _ = net(X, A)
         outs = all_outs[idx]
@@ -220,15 +220,15 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['ECG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
@@ -240,11 +240,11 @@ if __name__ == "__main__":
     n_conv = 2
     drop_rate = 0.5
     he_dropout = 0.5
-    n_epoch = 1
+    n_epoch = 1000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "FC"
+    fusion_model = "HGNNP"
     fuse_models = True
-    use_attributes = False
+    use_attributes = True
     opti = False
     trials = 1
 
@@ -310,20 +310,20 @@ if __name__ == "__main__":
                     G = Hypergraph(X.size()[0], device=device)
                     G.add_hyperedges_from_feature_kNN(X, k=k)
 
-                    if use_attributes:
-                        for a in sa:
-                            G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
-                        for a in va:
-                            G.add_hyperedges(a, group_name="video_attributes_"+str(a))
-                        z = 0
-                        for a in lpa:
-                            G.add_hyperedges(a, group_name="low_personality_attributes_"+str(z))
-                            z += 1
+                    # if use_attributes:
+                    #     for a in sa:
+                    #         G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+                    #     for a in va:
+                    #         G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+                    #     z = 0
+                    #     for a in lpa:
+                    #         G.add_hyperedges(a, group_name="low_personality_attributes_"+str(z))
+                    #         z += 1
 
-                        z = 0
-                        for a in hpa:
-                            G.add_hyperedges(a, group_name="high_personality_attributes_"+str(z))
-                            z += 1
+                    #     z = 0
+                    #     for a in hpa:
+                    #         G.add_hyperedges(a, group_name="high_personality_attributes_"+str(z))
+                    #         z += 1
 
                     Y = [[0,1] if e == 1 else [1,0] for e in Y]
                     Y = torch.tensor(Y).float()
