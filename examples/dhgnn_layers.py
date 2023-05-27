@@ -274,7 +274,8 @@ class HGNN_conv(nn.Module):
     def forward(self, ids, feats, edge_dict, G, ite):
         x = feats
         x = self.activation(self.fc(x))
-        # G = G.to_dense().permute(1, 0)
-        # x = G.matmul(x)
+        # x = feats.permute(1, 0).matmul(x) 
+        # conv = nn.Conv1d(self.dim_out, 2088, kernel_size=1)
+        # x = conv(x)
         x = self.dropout(x)
         return x
