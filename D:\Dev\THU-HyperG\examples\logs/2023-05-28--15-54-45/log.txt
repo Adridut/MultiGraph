@@ -1,0 +1,20 @@
+[INFO 2023-05-28 15:54:45,731]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-05-28--15-54-45/log.txt
+[INFO 2023-05-28 15:54:45,732]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-05-28--15-54-45
+[INFO 2023-05-28 15:54:46,934]-> Random seed is 1685256886
+[INFO 2023-05-28 15:54:47,122]-> A new study created in RDB with name: no-name-0b0d4a64-4edd-4eb5-86ca-087d2b9a0e85
+[WARNING 2023-05-28 15:54:48,817]-> Trial 0 failed with parameters: {'k_ECG': 54, 'hidden_dim': 45, 'n_conv': 7, 'drop_rate': 0.5201691703935236, 'he_dropout': 0.409580399867638, 'lr': 0.00236858498417703, 'weight_decay': 0.0009643071058519761} because of the following error: TypeError('only integer tensors of a single element can be converted to an index').
+Traceback (most recent call last):
+  File "/home/adriendutfoy/.local/lib/python3.9/site-packages/optuna/study/_optimize.py", line 200, in _run_trial
+    value_or_values = func(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 71, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 83, in experiment
+    return super().experiment(trial)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/base.py", line 102, in experiment
+    self.train(self.data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/hypergraphs/hypergraph.py", line 98, in train
+    return super().train(data, model, optimizer, criterion)
+  File "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/dhg/experiments/vertex_classification.py", line 115, in train
+    loss = criterion(outputs[train_mask], labels[train_mask],)
+TypeError: only integer tensors of a single element can be converted to an index
+[WARNING 2023-05-28 15:54:48,818]-> Trial 0 failed with value None.
