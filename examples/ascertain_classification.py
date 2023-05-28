@@ -74,11 +74,11 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     best_epoch, best_val = 0, 0
     for epoch in range(n_epoch):
         # train
-        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name)
+        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name, device)
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res, _ = infer(net, X, G, lbl, val_mask, epoch, model_name)
+                val_res, _ = infer(net, X, G, lbl, val_mask, epoch, model_name, device)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -89,13 +89,13 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, test=True)
+    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, device, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
 
 
-def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
+def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
     net.train()
     st = time.time()
     optimizer.zero_grad()
@@ -106,9 +106,9 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
     elif model_name == "DHGNN":
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
-        ids = torch.tensor(ids).long().to(device)[train_idx]
-        G = torch.Tensor(A.e_list)
-        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch)
+        ids = torch.tensor(ids).long()[train_idx].to(device)
+        G = torch.Tensor(A.e_list).to(device)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch, device=device)
     else:
         outs, _ = net(X, A)
         outs = outs[train_idx]
@@ -122,7 +122,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
 
 
 @torch.no_grad()
-def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
+def infer(net, X, A, lbls, idx, epoch, model_name, device, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
     if model_name == "FC":
@@ -131,7 +131,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)
-        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch)
+        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
         outs = all_outs[idx]
     else:
         all_outs, _ = net(X, A)
@@ -173,13 +173,9 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
         
 def structure_builder(trial):
 
-    G = Hypergraph(2088)
-    for m in selected_modalities:
-        for mod in m:
-            x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
-            x = torch.tensor(x).float()
-            k = trial.suggest_int("k_"+str(mod), 3, 100)
-            G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
+    G = Hypergraph(n_nodes)
+    k = trial.suggest_int("k", 3, 100)
+    G.add_hyperedges_from_feature_kNN(X, k=k)
 
     if use_attributes:
         for a in sa:
@@ -202,7 +198,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
+    return HGNN(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
 
 
 def train_builder(trial, model):
@@ -220,15 +216,15 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['ECG']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "arousal"
+    label = "valence"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
@@ -244,7 +240,7 @@ if __name__ == "__main__":
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = True
-    use_attributes = False
+    use_attributes = True
     opti = True
     trials = 1
 
@@ -255,15 +251,16 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
-        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+        # work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
 
-        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         num_classes = 2
 
 
         X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        print("Optimize for: " + str(selected_modalities[0]))
         dim_features = X.shape[1]
+        n_nodes = X.shape[0]
         
         Y = torch.from_numpy(Y).long()
         train_mask = torch.tensor(train_mask)
