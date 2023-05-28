@@ -245,7 +245,7 @@ if __name__ == "__main__":
     fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = False
-    opti = False
+    opti = True
     trials = 1
 
 
