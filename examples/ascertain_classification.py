@@ -74,11 +74,11 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     best_epoch, best_val = 0, 0
     for epoch in range(n_epoch):
         # train
-        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name)
+        train(net, X, G, lbl, train_mask, optimizer, epoch, model_name, device)
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res, _ = infer(net, X, G, lbl, val_mask, epoch, model_name)
+                val_res, _ = infer(net, X, G, lbl, val_mask, epoch, model_name, device)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -89,13 +89,13 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, test=True)
+    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, device, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
 
 
-def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
+def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
     net.train()
     st = time.time()
     optimizer.zero_grad()
@@ -106,9 +106,9 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
     elif model_name == "DHGNN":
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
-        ids = torch.tensor(ids).long().to(device)[train_idx]
-        G = torch.Tensor(A.e_list)
-        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch)
+        ids = torch.tensor(ids).long()[train_idx].to(device)
+        G = torch.Tensor(A.e_list).to(device)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch, device=device)
     else:
         outs, _ = net(X, A)
         outs = outs[train_idx]
@@ -122,7 +122,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
 
 
 @torch.no_grad()
-def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
+def infer(net, X, A, lbls, idx, epoch, model_name, device, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
     if model_name == "FC":
@@ -131,7 +131,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     elif model_name == "DHGNN":
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long().to(device)
-        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch)
+        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
         outs = all_outs[idx]
     else:
         all_outs, _ = net(X, A)

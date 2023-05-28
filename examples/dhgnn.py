@@ -52,10 +52,11 @@ class DHGNN(nn.Module):
         edge_dict = kwargs['edge_dict']
         G = kwargs['G']
         ite = kwargs['ite']
+        device=kwargs["device"]
 
         x = feats
         for i_layer in range(self.n_layers):
-            x = self.gcs[i_layer](ids, x, edge_dict, G, ite)
+            x = self.gcs[i_layer](ids, x, edge_dict, G, ite, device)
 
         x = torch.sigmoid(x)
         return x

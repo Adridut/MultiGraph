@@ -162,7 +162,7 @@ class DHGLayer(GraphConvolution):
     def _vertex_conv(self, func, x):
         return func(x)
 
-    def _structure_select(self, ids, feats, edge_dict):
+    def _structure_select(self, ids, feats, edge_dict, device):
         """
         :param ids: indices selected during train/valid/test, torch.LongTensor
         :param feats:
@@ -171,7 +171,7 @@ class DHGLayer(GraphConvolution):
         """
         if self.structure is None:
             _N = feats.size(0)
-            idx = torch.LongTensor([sample_ids(edge_dict[i], self.ks) for i in range(_N)])    # (_N, ks)
+            idx = torch.LongTensor([sample_ids(edge_dict[i], self.ks) for i in range(_N)]).to(device)   # (_N, ks)
             self.structure = idx
         else:
             idx = self.structure
@@ -196,7 +196,7 @@ class DHGLayer(GraphConvolution):
         nearest_feature = feats[idx.view(-1)].view(N, self.kn, d)         # (N, kn, d)
         return nearest_feature
 
-    def _cluster_select(self, ids, feats):
+    def _cluster_select(self, ids, feats, device):
         """
         compute k-means centers and cluster labels of each node
         return top #n_cluster nearest cluster transformed features
@@ -215,7 +215,7 @@ class DHGLayer(GraphConvolution):
             point_labels = kmeans.labels_
             point_in_which_cluster = [np.where(point_labels == i)[0] for i in range(self.n_cluster)]
             idx = torch.LongTensor([[sample_ids_v2(point_in_which_cluster[cluster_center_dict[point][i]], self.kc)   
-                        for i in range(self.n_center)] for point in range(_N)])    # (_N, n_center, kc)
+                        for i in range(self.n_center)] for point in range(_N)]).to(device)    # (_N, n_center, kc)
             self.kmeans = idx
         else:
             idx = self.kmeans
@@ -233,10 +233,10 @@ class DHGLayer(GraphConvolution):
     def _fc(self, x):
         return self.activation(self.fc(self.dropout(x)))
 
-    def forward(self, ids, feats, edge_dict, G, ite):
+    def forward(self, ids, feats, edge_dict, G, ite, device):
         hyperedges = []    
         if ite >= self.wu_kmeans:
-            c_feat = self._cluster_select(ids, feats)
+            c_feat = self._cluster_select(ids, feats, device)
             for c_idx in range(c_feat.size(1)):
                 xc = self._vertex_conv(self.vc_c, c_feat[:, c_idx, :, :])
                 xc  = xc.view(len(ids), 1, feats.size(1))               # (N, 1, d)          
@@ -247,7 +247,7 @@ class DHGLayer(GraphConvolution):
             xn  = xn.view(len(ids), 1, feats.size(1))                   # (N, 1, d)
             hyperedges.append(xn)
         if ite >= self.wu_struct:
-            s_feat = self._structure_select(ids, feats, edge_dict)
+            s_feat = self._structure_select(ids, feats, edge_dict, device)
             xs = self._vertex_conv(self.vc_s, s_feat)
             xs  = xs.view(len(ids), 1, feats.size(1))                   # (N, 1, d)
             hyperedges.append(xs)
@@ -271,7 +271,7 @@ class HGNN_conv(nn.Module):
         self.activation = kwargs['activation']
 
 
-    def forward(self, ids, feats, edge_dict, G, ite):
+    def forward(self, ids, feats, edge_dict, G, ite, device):
         x = feats
         x = self.activation(self.fc(x))
         # x = feats.permute(1, 0).matmul(x) 
