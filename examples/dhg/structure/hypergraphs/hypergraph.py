@@ -334,6 +334,7 @@ class Hypergraph(BaseHypergraph):
             ``group_name`` (``str``, optional): The target hyperedge group to add these hyperedges. Defaults to the ``main`` hyperedge group.
         """
         e_list = self._format_e_list(e_list)
+        self.e_list = e_list
         if e_weight is None:
             e_weight = [1.0] * len(e_list)
         elif type(e_weight) in (int, float):
@@ -350,7 +351,7 @@ class Hypergraph(BaseHypergraph):
             )
         self._clear_cache(group_name)
 
-    def add_hyperedges_from_feature_kNN(self, feature: torch.Tensor, k: int, group_name: str = "main"):
+    def add_hyperedges_from_feature_kNN(self, feature: torch.Tensor, k: int, group_name: str = "main", e_weight: float = 0.5):
         r"""Add hyperedges from the feature matrix by k-NN. Each hyperedge is constructed by the central vertex and its :math:`k`-Nearest Neighbor vertices.
 
         Args:
@@ -362,7 +363,8 @@ class Hypergraph(BaseHypergraph):
             feature.shape[0] == self.num_v
         ), "The number of vertices in the feature matrix is not equal to the number of vertices in the hypergraph."
         e_list = Hypergraph._e_list_from_feature_kNN(feature, k)
-        self.add_hyperedges(e_list, group_name=group_name)
+        e_weight = [e_weight] * len(e_list)
+        self.add_hyperedges(e_list, e_weight=e_weight, group_name=group_name)
 
     def add_hyperedges_from_graph(self, graph: "Graph", group_name: str = "main"):
         r"""Add hyperedges from edges in the graph. Each edge in the graph is treated as a hyperedge.
@@ -523,6 +525,11 @@ class Hypergraph(BaseHypergraph):
                 e_weight.extend(_e[1])
             self.cache["e"] = (e_list, e_weight)
         return self.cache["e"]
+    
+    def e_list(self) -> List[List[int]]:
+        r"""Return all hyperedges in the hypergraph.
+        """
+        return self.e_list
 
     def e_of_group(self, group_name: str) -> Tuple[List[List[int]], List[float]]:
         r"""Return all hyperedges and weights of the specified hyperedge group.
@@ -1219,6 +1226,7 @@ class Hypergraph(BaseHypergraph):
             L_HGNN = sparse_dropout(self.L_HGNN, drop_rate)
         else:
             L_HGNN = self.L_HGNN
+
         return L_HGNN.mm(X)
 
     def smoothing_with_HGNN_of_group(self, group_name: str, X: torch.Tensor, drop_rate: float = 0.0) -> torch.Tensor:
@@ -1698,3 +1706,4 @@ class Hypergraph(BaseHypergraph):
         X = self.v2e_of_group(group_name, X, v2e_aggr, v2e_weight, e_weight, drop_rate=v2e_drop_rate)
         X = self.e2v_of_group(group_name, X, e2v_aggr, e2v_weight, drop_rate=e2v_drop_rate)
         return X
+    

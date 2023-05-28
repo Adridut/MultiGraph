@@ -15,8 +15,8 @@ from dhg.models import HGNN, HGNNP
 from dhg.metrics import HypergraphVertexClassificationEvaluator as Evaluator
 
 from dhg.experiments import HypergraphVertexClassificationTask as Task
+
 import torch.nn as nn
-import torch.optim as optim
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
@@ -32,7 +32,6 @@ from dhg.random import set_seed
 
 
 # set_seed(0)
-
 
 def print_log(message):
     """
@@ -79,7 +78,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
         # validation
         if epoch % 1 == 0:
             with torch.no_grad():
-                val_res, _ = infer(net, X, G, lbl, val_mask, model_name)
+                val_res, _ = infer(net, X, G, lbl, val_mask, epoch, model_name)
             if val_res > best_val:
                 print(f"update best: {val_res:.5f}")
                 best_epoch = epoch
@@ -90,7 +89,7 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     # test
     print("test...")
     net.load_state_dict(best_state)
-    res, all_outs = infer(net, X, G, lbl, test_mask, model_name, test=True)
+    res, all_outs = infer(net, X, G, lbl, test_mask, best_epoch, model_name, test=True)
     print(f"final result: epoch: {best_epoch}")
     print(res)
     return res, all_outs
@@ -100,12 +99,21 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
     net.train()
     st = time.time()
     optimizer.zero_grad()
+    
     if model_name == "FC":
         outs = net(X)   
+        outs = outs[train_idx]
+    elif model_name == "DHGNN":
+        #ids: indices selected during train/valid/test, torch.LongTensor
+        ids = [i for i in range(X.size()[0])]
+        ids = torch.tensor(ids).long().to(device)[train_idx]
+        G = torch.Tensor(A.e_list)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch)
     else:
-        outs = net(X, A)
+        outs, _ = net(X, A)
+        outs = outs[train_idx]
 
-    outs, lbls = outs[train_idx], lbls[train_idx]
+    lbls = lbls[train_idx]
     loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
@@ -114,15 +122,22 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name):
 
 
 @torch.no_grad()
-def infer(net, X, A, lbls, idx, model_name, test=False):
+def infer(net, X, A, lbls, idx, epoch, model_name, test=False):
     evaluator = Evaluator(["accuracy", "f1_score"])
     net.eval()
     if model_name == "FC":
         all_outs = net(X)
+        outs = all_outs[idx]
+    elif model_name == "DHGNN":
+        ids = [i for i in range(X.size()[0])]
+        ids = torch.tensor(ids).long().to(device)
+        all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch)
+        outs = all_outs[idx]
     else:
-        all_outs = net(X, A)
+        all_outs, _ = net(X, A)
+        outs = all_outs[idx]
 
-    outs, lbls = all_outs[idx], lbls[idx]
+    lbls = lbls[idx]
     lbls = torch.argmax(lbls, dim=1)
     outs = torch.argmax(outs, dim=1)
     if not test:
@@ -132,26 +147,28 @@ def infer(net, X, A, lbls, idx, model_name, test=False):
     return res, all_outs
 
 
-def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model):
+def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop_rate, he_dropout):
         if model == "HGNN":
-            return HGNN(feat_dimension, n_hidden_layers, n_classes, n_conv, use_bn=True)
+            return HGNN(feat_dimension, n_hidden_layers, n_classes, n_conv, use_bn=True, drop_rate=drop_rate, he_dropout=he_dropout)
         elif model == "HGNNP":
-            return HGNNP(feat_dimension, n_hidden_layers, n_classes, use_bn=True)
+            return HGNNP(feat_dimension, n_hidden_layers, n_classes, use_bn=True, drop_rate=drop_rate, he_dropout=he_dropout)
+        elif model == "FC":
+            return FC(feat_dimension, n_classes)
         elif model == "DHGNN":
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=128,
-            k_nearest=64,
-            k_cluster=64,
+            k_structured=8,
+            k_nearest=4,
+            k_cluster=4,
             wu_knn=0,
             wu_kmeans=10,
             wu_struct=5,
             clusters=400,
             adjacent_centers=1,
             n_layers=2,
-            layer_spec=[256],
-            dropout_rate=0.5,
-            has_bias=True
+            layer_spec=[feat_dimension],
+            dropout_rate=drop_rate,
+            has_bias=True,
             )
         
 def structure_builder(trial):
@@ -159,16 +176,16 @@ def structure_builder(trial):
     G = Hypergraph(2088)
     for m in selected_modalities:
         for mod in m:
-            x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=mod, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+            x, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
             x = torch.tensor(x).float()
             k = trial.suggest_int("k_"+str(mod), 3, 100)
             G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
 
     if use_attributes:
-        # for a in sa:
-        #     G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
-        # for a in va:
-        #     G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+        for a in sa:
+            G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+        for a in va:
+            G.add_hyperedges(a, group_name="video_attributes_"+str(a))
         i = 0
         for a in lpa:
             G.add_hyperedges(a, group_name="low_personality_attributes_"+str(i))
@@ -185,7 +202,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, n_conv=trial.suggest_int("n_conv", 2, 5), use_bn=True).to(device)
+    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
 
 
 def train_builder(trial, model):
@@ -204,28 +221,32 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['EEG']]
+    # selected_modalities = [['ECG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
-    label = "valence"
-    train_ratio = 80
-    val_ratio = 10
-    test_ratio = 10
+
+    label = "arousal"
+    train_ratio = 70
+    val_ratio = 15
+    test_ratio = 15
     n_classes = 2
     n_hidden_layers = 8 #8
     k = 4 #4, 20    
     lr = 0.001 #0.01, 0.001
     weight_decay = 5*10**-4 
     n_conv = 2
-    n_epoch = 600
-    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    drop_rate = 0.5
+    he_dropout = 0.5
+    n_epoch = 1000
+    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
+    fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = False
-    opti = False 
-    trials = 10
+    opti = False
+    trials = 1
 
 
     final_acc = 0
@@ -234,27 +255,26 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        # work_root = "D:\Dev\THU-HyperG\examples\logs"
-        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs"
+        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         num_classes = 2
 
 
-        X, y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0][0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
+        X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=selected_modalities[0], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio)
         dim_features = X.shape[1]
         
-        y = torch.from_numpy(y).long()
+        Y = torch.from_numpy(Y).long()
         train_mask = torch.tensor(train_mask)
         val_mask = torch.tensor(val_mask)
         test_mask = torch.tensor(test_mask)
-        # X = torch.eye(dim_features)
-
+        X = torch.tensor(X).float()
         X = X.to(device)
-        y = y.to(device)
-        # hg_base = Hypergraph(data["num_vertices"], data["edge_list"])
+        Y = Y.to(device)
         input_data = {
             "features": X,
-            "labels": y,
+            "labels": Y,
             "train_mask": train_mask,
             "val_mask": val_mask,
             "test_mask": test_mask,
@@ -263,51 +283,47 @@ if __name__ == "__main__":
         task = Task(
             work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
         ).to(device)
+
         task.run(n_epoch, 500, "maximize")
+
 
     else:
         if model_name == "NB" or model_name == "SVM":
-            run_baseline(selected_modalities, label, train_ratio, val_ratio, test_ratio, model_name, trials)
+            run_baseline(selected_modalities, label, 80, 10, 10, model_name, trials)
 
         else:
             for trial in range(trials):
                 print_log("trial: " + str(trial))
                 i = 0
                 inputs = []
+                accs = []
                 for m in selected_modalities:
                     # n_hidden_layers = hds[i]
 
                     print_log("loading data: " + str(m))
                     X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv)
+                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
 
-                    X = torch.tensor(X, requires_grad=True).float()
+                    X = torch.tensor(X).float()
 
                     print_log("generating hypergraph: " + str(m))
-                    G = Hypergraph(X.size()[0])
+                    G = Hypergraph(X.size()[0], device=device)
+                    G.add_hyperedges_from_feature_kNN(X, k=k)
 
-                    j = 0
-                    for mod in m:
-                        x, _, _, _, _, _, _, _, _ = load_ASERTAIN(selected_modalities=[mod], label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                        x = torch.tensor(x).float()
-                        # k = ks[i]
-                        G.add_hyperedges_from_feature_kNN(x, k=k, group_name=str(mod))
-                        j += 1
+                    # if use_attributes:
+                    #     for a in sa:
+                    #         G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+                    #     for a in va:
+                    #         G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+                    #     z = 0
+                    #     for a in lpa:
+                    #         G.add_hyperedges(a, group_name="low_personality_attributes_"+str(z))
+                    #         z += 1
 
-                    if use_attributes:
-                        # for a in sa:
-                        #     G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
-                        # for a in va:
-                        #     G.add_hyperedges(a, group_name="video_attributes_"+str(a))
-                        z = 0
-                        for a in lpa:
-                            G.add_hyperedges(a, group_name="low_personality_attributes_"+str(z))
-                            z += 1
-
-                        z = 0
-                        for a in hpa:
-                            G.add_hyperedges(a, group_name="high_personality_attributes_"+str(z))
-                            z += 1
+                    #     z = 0
+                    #     for a in hpa:
+                    #         G.add_hyperedges(a, group_name="high_personality_attributes_"+str(z))
+                    #         z += 1
 
                     Y = [[0,1] if e == 1 else [1,0] for e in Y]
                     Y = torch.tensor(Y).float()
@@ -326,14 +342,46 @@ if __name__ == "__main__":
                     res, out = run(device, X, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
                     all_accs[i] += res['accuracy']
                     all_f1s[i] += res['f1_score']
+                    accs.append(res['accuracy'])
                     inputs.append(out)
                     i += 1
 
                 if fuse_models:
                     print_log("fusing models")
-                    inputs = torch.cat(inputs, 1)
-                    net = FC(inputs.size()[1], n_classes)
-                    final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, net, lr , weight_decay, n_epoch, "FC")
+
+                    if fusion_model=="HGNNP":
+                        G = Hypergraph(2088)
+                        i = 0
+
+                        if use_attributes:
+                            for a in sa:
+                                G.add_hyperedges(a, group_name="subject_attributes_")
+                            for a in va:
+                                G.add_hyperedges(a, group_name="video_attributes_")
+
+                            for a in lpa:
+                                G.add_hyperedges(a, group_name="low_personality_attributes_")
+                                i += 1
+
+                            i = 0
+                            for a in hpa:
+                                G.add_hyperedges(a, group_name="high_personality_attributes_")
+                                i += 1
+
+                        j = 0
+                        for i in inputs:
+                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j), e_weight=accs[j])
+                            j += 1
+
+                        inputs = torch.cat(inputs, 1)
+                        G.add_hyperedges_from_feature_kNN(inputs, k=k, group_name="modality_fusion")
+                    
+                    else:
+                        inputs = torch.cat(inputs, 1)
+
+                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
+
+                    final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, fusion_model)
                     final_acc += final_res['accuracy']
                     final_f1 += final_res['f1_score']
 

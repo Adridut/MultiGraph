@@ -43,6 +43,7 @@ class HGNNPConv(nn.Module):
         use_bn: bool = False,
         drop_rate: float = 0.5,
         is_last: bool = False,
+        he_dropout: float = 0,
     ):
         super().__init__()
         self.is_last = is_last
@@ -50,6 +51,7 @@ class HGNNPConv(nn.Module):
         self.act = nn.ReLU(inplace=True)
         self.drop = nn.Dropout(drop_rate)
         self.theta = nn.Linear(in_channels, out_channels, bias=bias)
+        self.he_dropout = he_dropout
 
     def forward(self, X: torch.Tensor, hg: Hypergraph) -> torch.Tensor:
         r"""The forward function.
@@ -61,7 +63,7 @@ class HGNNPConv(nn.Module):
         X = self.theta(X)
         if self.bn is not None:
             X = self.bn(X)
-        X = hg.v2v(X, aggr="mean")
+        X = hg.v2v(X, aggr="mean", drop_rate=self.he_dropout)
         if not self.is_last:
             X = self.drop(self.act(X))
         return X

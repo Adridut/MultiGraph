@@ -134,7 +134,7 @@ class BaseTask:
         self.logger.info(f"Random seed is {dhg.random.seed()}")
         sampler = TPESampler(seed=dhg.random.seed())
         self.max_epoch, self.direction = max_epoch, direction
-        self.study = optuna.create_study(direction=direction, sampler=sampler)
+        self.study = optuna.create_study(direction=direction, sampler=sampler, storage="sqlite:///db.sqlite3")
         self.study.optimize(self.experiment, n_trials=num_trials, timeout=600)
 
         self._remove_cached_data()
