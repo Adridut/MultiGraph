@@ -185,7 +185,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, use_bn=True).to(device)
+    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, n_conv=trial.suggest_int("n_conv", 2, 5), use_bn=True).to(device)
 
 
 def train_builder(trial, model):
@@ -203,18 +203,12 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
-
-    # ks = [[58], [22], [45], [14], [49, 99], [85,43]]
-    ks = [28, 95, 28, 18, 6, 80, 95, 91, 51, 51, 19, 69, 20, 62, 9]
-    lrs = [0.00013869861245357332, 0.0011044005450656853, 0.005636798360593478, 0.00941688905278987, 0.0006189295525337117, 0.0026484233717115353]
-    wds = [0.0001493683554419846, 0.006182977400901223, 0.004364870880569334, 0.006812298690059751, 0.0004035446353541675, 0.00014742828620655684]
-    hds = [19, 8, 13, 15, 2, 11]
+    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
     label = "valence"
     train_ratio = 80
@@ -227,10 +221,10 @@ if __name__ == "__main__":
     weight_decay = 5*10**-4 
     n_conv = 2
     n_epoch = 600
-    model_name = "HGNNP" #HGNN, HGNNP, NB, SVM
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fuse_models = True
-    use_attributes = True
-    opti = False
+    use_attributes = False
+    opti = False 
     trials = 10
 
 

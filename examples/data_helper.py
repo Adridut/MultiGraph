@@ -34,7 +34,7 @@ def load_ASERTAIN(selected_modalities=['ECG', 'GSR'],  label='valence', train_ra
     """
 	convert csv to np array
 	"""
-    with open(os.path.join(dir, "ascertain_multimodal_no_nan.csv")) as file:
+    with open(os.path.join(dir, "ascertain_multimodal.csv")) as file:
         reader = csv.reader(file)
         data = list(reader)
         columns = np.asarray(data[0])
