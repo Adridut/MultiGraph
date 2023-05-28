@@ -112,7 +112,7 @@ class VertexClassificationTask(BaseTask):
         model.train()
         optimizer.zero_grad()
         outputs = model(features, structure)
-        loss = criterion(outputs[train_mask], labels[train_mask],)
+        loss = criterion(outputs[train_mask], labels[train_mask])
         loss.backward()
         optimizer.step()
 

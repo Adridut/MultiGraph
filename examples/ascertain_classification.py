@@ -110,7 +110,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         G = torch.Tensor(A.e_list).to(device)
         outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch, device=device)
     else:
-        outs, _ = net(X, A)
+        outs = net(X, A)
         outs = outs[train_idx]
 
     lbls = lbls[train_idx]
@@ -134,7 +134,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, device, test=False):
         all_outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
         outs = all_outs[idx]
     else:
-        all_outs, _ = net(X, A)
+        all_outs = net(X, A)
         outs = all_outs[idx]
 
     lbls = lbls[idx]
@@ -179,17 +179,17 @@ def structure_builder(trial):
 
     if use_attributes:
         for a in sa:
-            G.add_hyperedges(a, group_name="subject_attributes_"+str(a))
+            G.add_hyperedges(a)
         for a in va:
-            G.add_hyperedges(a, group_name="video_attributes_"+str(a))
+            G.add_hyperedges(a)
         i = 0
         for a in lpa:
-            G.add_hyperedges(a, group_name="low_personality_attributes_"+str(i))
+            G.add_hyperedges(a)
             i += 1
 
         i = 0
         for a in hpa:
-            G.add_hyperedges(a, group_name="high_personality_attributes_"+str(i))
+            G.add_hyperedges(a)
             i += 1
 
 
@@ -263,9 +263,9 @@ if __name__ == "__main__":
         n_nodes = X.shape[0]
         
         Y = torch.from_numpy(Y).long()
-        train_mask = torch.tensor(train_mask)
-        val_mask = torch.tensor(val_mask)
-        test_mask = torch.tensor(test_mask)
+        train_mask = torch.tensor(train_mask).to(device)
+        val_mask = torch.tensor(val_mask).to(device)
+        test_mask = torch.tensor(test_mask).to(device)
         X = torch.tensor(X).float()
         X = X.to(device)
         Y = Y.to(device)

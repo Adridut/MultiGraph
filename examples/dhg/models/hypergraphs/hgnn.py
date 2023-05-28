@@ -55,4 +55,4 @@ class HGNN(nn.Module):
 
         X = torch.sigmoid(X)
 
-        return X, hg
+        return X
