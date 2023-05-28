@@ -1,2 +1,0 @@
-[INFO 2023-05-28 15:53:05,800]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-05-28--15-53-05/log.txt
-[INFO 2023-05-28 15:53:05,801]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-05-28--15-53-05

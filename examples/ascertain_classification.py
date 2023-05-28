@@ -251,8 +251,8 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
-        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+        # work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
 
         num_classes = 2
 
