@@ -73,6 +73,8 @@ def run(device, X, lbl, train_mask, test_mask, val_mask, G, net, lr , weight_dec
     best_state = None
     best_epoch, best_val = 0, 0
     for epoch in range(n_epoch):
+        if epoch > best_epoch+200:
+            break
         # train
         train(net, X, G, lbl, train_mask, optimizer, epoch, model_name, device)
         # validation
@@ -117,7 +119,8 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
     loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
-    print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
+    if epoch % 10 == 0:
+        print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
     return loss.item()
 
 
@@ -217,32 +220,32 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities = [['EMO']]
+    # selected_modalities = [['EMO']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
-    n_hidden_layers = 8 #8
-    k = 4 #4, 20    
-    lr = 0.001 #0.01, 0.001
-    weight_decay = 5*10**-4 
-    n_conv = 2
-    drop_rate = 0.5
-    he_dropout = 0.5
-    n_epoch = 1000
-    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
+    n_hidden_layers = 47 #8
+    k = 66 #4, 20    
+    lr = 0.0019 #0.01, 0.001
+    weight_decay = 0.0068 
+    n_conv = 6
+    drop_rate = 0.18
+    he_dropout = 0.04
+    n_epoch = 10000
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = False
     use_attributes = False
     opti = False
-    trials = 1
+    trials = 10
 
 
     final_acc = 0
@@ -285,6 +288,7 @@ if __name__ == "__main__":
 
 
     else:
+        print_log("model: " + model_name)
         if model_name == "NB" or model_name == "SVM":
             run_baseline(selected_modalities, label, 80, 10, 10, model_name, trials)
 
@@ -344,7 +348,7 @@ if __name__ == "__main__":
                     i += 1
 
                 if fuse_models:
-                    print_log("fusing models")
+                    print_log("fusing models with: " + fusion_model)
 
                     if fusion_model=="HGNNP":
                         G = Hypergraph(2088)
