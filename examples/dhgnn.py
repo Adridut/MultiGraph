@@ -18,7 +18,7 @@ class DHGNN(nn.Module):
         layer_spec = kwargs['layer_spec']
         self.dims_in = [self.dim_feat] + layer_spec
         self.dims_out = layer_spec + [self.n_categories]
-        activations = nn.ModuleList([nn.ReLU() for i in range(self.n_layers - 1)] + [nn.LogSoftmax(dim=-1)])
+        activations = nn.ModuleList([nn.ReLU() for i in range(self.n_layers - 1)] + [nn.Sigmoid()])
         self.gcs = nn.ModuleList([HGNN_conv(
             dim_in=self.dims_in[0],
             dim_out=self.dims_out[0],
@@ -58,5 +58,5 @@ class DHGNN(nn.Module):
         for i_layer in range(self.n_layers):
             x = self.gcs[i_layer](ids, x, edge_dict, G, ite, device)
 
-        x = torch.sigmoid(x)
+        # x = torch.sigmoid(x)
         return x
