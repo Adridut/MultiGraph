@@ -219,10 +219,10 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['EMO']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -239,13 +239,13 @@ if __name__ == "__main__":
     n_conv = 6
     drop_rate = 0.18
     he_dropout = 0.04
-    n_epoch = 10000
-    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    n_epoch = 10
+    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
-    fuse_models = False
+    fuse_models = True
     use_attributes = False
     opti = False
-    trials = 10
+    trials = 1
 
 
     final_acc = 0
@@ -354,24 +354,30 @@ if __name__ == "__main__":
                         G = Hypergraph(2088)
                         i = 0
 
+                        # weight of attributes 
+                        accs.append(0.5)
+                        # normalize weights so their sum is 1
+                        weights = [float(i)/sum(accs) for i in accs]
+                        print(weights)
+
+
                         if use_attributes:
                             for a in sa:
-                                G.add_hyperedges(a, group_name="subject_attributes_")
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
+                           
                             for a in va:
-                                G.add_hyperedges(a, group_name="video_attributes_")
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
 
                             for a in lpa:
-                                G.add_hyperedges(a, group_name="low_personality_attributes_")
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
                                 i += 1
 
-                            i = 0
                             for a in hpa:
-                                G.add_hyperedges(a, group_name="high_personality_attributes_")
-                                i += 1
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
 
                         j = 0
                         for i in inputs:
-                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j), e_weight=accs[j])
+                            G.add_hyperedges_from_feature_kNN(i, k=k, group_name="modality_"+str(j), e_weight=weights[j])
                             j += 1
 
                         inputs = torch.cat(inputs, 1)
