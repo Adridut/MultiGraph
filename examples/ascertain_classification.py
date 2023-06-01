@@ -201,7 +201,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNN(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
+    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
 
 
 def train_builder(trial, model):
@@ -227,25 +227,25 @@ if __name__ == "__main__":
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "arousal"
+    label = "valence"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
-    n_hidden_layers = 47 #8
-    k = 66 #4, 20    
-    lr = 0.0019 #0.01, 0.001
-    weight_decay = 0.0068 
-    n_conv = 6
-    drop_rate = 0.18
-    he_dropout = 0.04
-    n_epoch = 10
-    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "HGNNP"
+    n_hidden_layers = 8 #8
+    k = 20 #4, 20    
+    lr = 0.001 #0.01, 0.001
+    weight_decay = 5*10**-4
+    n_conv = 2
+    drop_rate = 0.5
+    he_dropout = 0
+    n_epoch = 10000
+    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
+    fusion_model = "FC"
     fuse_models = True
     use_attributes = False
     opti = False
-    trials = 1
+    trials = 10
 
 
     final_acc = 0
