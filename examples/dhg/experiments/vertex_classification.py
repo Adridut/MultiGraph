@@ -109,9 +109,13 @@ class VertexClassificationTask(BaseTask):
         """
         features, structure = data["features"], data["structure"]
         train_mask, labels = data["train_mask"], data["labels"]
+        device = data["device"]
         model.train()
         optimizer.zero_grad()
-        outputs = model(features, structure)
+        # outputs = model(features, structure)
+        ids = [i for i in range(features.size()[0])]
+        ids = torch.tensor(ids).long().to(device)
+        outputs = model(ids=ids, feats=features, edge_dict=structure.e_list, G=structure.H, ite=0, device=device)
         loss = criterion(outputs[train_mask], labels[train_mask])
         loss.backward()
         optimizer.step()
@@ -126,8 +130,12 @@ class VertexClassificationTask(BaseTask):
         """
         features, structure = data["features"], data["structure"]
         val_mask, labels = data["val_mask"], data["labels"]
+        device = data["device"]
         model.eval()
-        outputs = model(features, structure)
+        # outputs = model(features, structure)
+        ids = [i for i in range(features.size()[0])]
+        ids = torch.tensor(ids).long().to(device)
+        outputs = model(ids=ids, feats=features, edge_dict=structure.e_list, G=structure.H, ite=0, device=device)
         res = self.evaluator.validate(labels[val_mask], outputs[val_mask])
         return res
 
@@ -155,6 +163,10 @@ class VertexClassificationTask(BaseTask):
             model = self.best_model
         model = model.to(self.device)
         model.eval()
-        outputs = model(features, structure)
+        # outputs = model(features, structure)
+        device = data["device"]
+        ids = [i for i in range(features.size()[0])]
+        ids = torch.tensor(ids).long().to(device)
+        outputs = model(ids=ids, feats=features, edge_dict=structure.e_list, G=structure.H, ite=0, device=device)
         res = self.evaluator.test(labels[test_mask], outputs[test_mask])
         return res

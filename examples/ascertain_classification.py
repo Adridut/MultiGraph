@@ -201,7 +201,23 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
+    n_layers=trial.suggest_int("n_layers", 1, 10)
+    return DHGNN(dim_feat=dim_features,
+            n_categories=n_classes,
+            k_structured=trial.suggest_int("k_structured", 3, 100),
+            k_nearest=trial.suggest_int("k_nearest", 3, 10),
+            k_cluster=trial.suggest_int("k_cluster", 3, 10),
+            wu_knn=0,
+            wu_kmeans=0,
+            wu_struct=0,
+            clusters=trial.suggest_int("clusters", 100, 1000),
+            adjacent_centers=trial.suggest_int("adjacent_centers", 1, 5),
+            n_layers=n_layers,
+            layer_spec=[dim_features for l in range(n_layers - 1)],
+            dropout_rate=trial.suggest_float("dropout_rate", 0, 0.9),
+            has_bias=True,
+            )
+    # return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
 
 
 def train_builder(trial, model):
@@ -242,9 +258,9 @@ if __name__ == "__main__":
     n_epoch = 10000
     model_name = "HGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "FC"
-    fuse_models = True
+    fuse_models = False
     use_attributes = False
-    opti = False
+    opti = True
     trials = 10
 
 
@@ -254,8 +270,8 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        # work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
-        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
 
         num_classes = 2
 
@@ -278,6 +294,7 @@ if __name__ == "__main__":
             "train_mask": train_mask,
             "val_mask": val_mask,
             "test_mask": test_mask,
+            "device": device,
         }
         evaluator = Evaluator(["accuracy", "f1_score"])
         task = Task(
