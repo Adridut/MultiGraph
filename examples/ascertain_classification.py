@@ -256,12 +256,12 @@ if __name__ == "__main__":
     drop_rate = 0.5
     he_dropout = 0
     n_epoch = 10000
-    model_name = "HGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "FC"
-    fuse_models = False
-    use_attributes = False
-    opti = True
-    trials = 10
+    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
+    fusion_model = "DHGNN"
+    fuse_models = True
+    use_attributes = True
+    opti = False
+    trials = 1
 
 
     final_acc = 0
