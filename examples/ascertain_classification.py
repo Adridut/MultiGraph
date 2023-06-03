@@ -211,7 +211,7 @@ def model_builder(trial):
             wu_kmeans=0,
             wu_struct=0,
             clusters=trial.suggest_int("clusters", 100, 1000),
-            adjacent_centers=trial.suggest_int("adjacent_centers", 1, 5),
+            adjacent_centers=trial.suggest_int("adjacent_centers", 1, 15),
             n_layers=n_layers,
             layer_spec=[dim_features for l in range(n_layers - 1)],
             dropout_rate=trial.suggest_float("dropout_rate", 0, 0.9),
@@ -235,8 +235,8 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['EMO']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    selected_modalities = [['EEG']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
@@ -258,9 +258,9 @@ if __name__ == "__main__":
     n_epoch = 10000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "DHGNN"
-    fuse_models = True
-    use_attributes = True
-    opti = False
+    fuse_models = False
+    use_attributes = False
+    opti = True
     trials = 1
 
 
@@ -294,14 +294,13 @@ if __name__ == "__main__":
             "train_mask": train_mask,
             "val_mask": val_mask,
             "test_mask": test_mask,
-            "device": device,
         }
         evaluator = Evaluator(["accuracy", "f1_score"])
         task = Task(
             work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
         ).to(device)
 
-        task.run(200, 100, "maximize")
+        task.run(200, 100, "maximize").to(device)
 
 
     else:
