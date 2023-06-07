@@ -109,8 +109,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         #ids: indices selected during train/valid/test, torch.LongTensor
         ids = [i for i in range(X.size()[0])]
         ids = torch.tensor(ids).long()[train_idx].to(device)
-        G = torch.Tensor(A.e_list).to(device)
-        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=G, ite=epoch, device=device)
+        outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
     else:
         outs = net(X, A)
         outs = outs[train_idx]
@@ -201,20 +200,20 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    n_layers=trial.suggest_int("n_layers", 1, 10)
+    n_layers = trial.suggest_int("n_layers", 1, 5)
     return DHGNN(dim_feat=dim_features,
             n_categories=n_classes,
             k_structured=trial.suggest_int("k_structured", 3, 100),
-            k_nearest=trial.suggest_int("k_nearest", 3, 10),
-            k_cluster=trial.suggest_int("k_cluster", 3, 10),
+            k_nearest=trial.suggest_int("k_nearest", 3, 100),
+            k_cluster=trial.suggest_int("k_cluster", 3, 100),
             wu_knn=0,
-            wu_kmeans=0,
-            wu_struct=0,
+            wu_kmeans=trial.suggest_int("wu_kmeans", 0, 15),
+            wu_struct=trial.suggest_int("wu_struct", 0, 15),
             clusters=trial.suggest_int("clusters", 100, 1000),
-            adjacent_centers=trial.suggest_int("adjacent_centers", 1, 15),
+            adjacent_centers=trial.suggest_int("adjacent_centers", 1, 5),
             n_layers=n_layers,
-            layer_spec=[dim_features for l in range(n_layers - 1)],
-            dropout_rate=trial.suggest_float("dropout_rate", 0, 0.9),
+            layer_spec=[dim_features for l in range(n_layers)],
+            dropout_rate=trial.suggest_float("drop_rate", 0, 0.9),
             has_bias=True,
             )
     # return HGNNP(dim_features, trial.suggest_int("hidden_dim", 2, 50), num_classes, num_conv=trial.suggest_int("n_conv", 2, 8), use_bn=True, drop_rate=trial.suggest_float("drop_rate", 0, 0.9), he_dropout=trial.suggest_float("he_dropout", 0, 0.9)).to(device)
@@ -236,9 +235,9 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities = [['EEG']]
+    # selected_modalities = [['ECG']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -260,7 +259,7 @@ if __name__ == "__main__":
     fusion_model = "DHGNN"
     fuse_models = False
     use_attributes = False
-    opti = True
+    opti = False
     trials = 1
 
 
@@ -270,8 +269,8 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        # work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
-        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
 
         num_classes = 2
 
@@ -300,7 +299,7 @@ if __name__ == "__main__":
             work_root, input_data, model_builder, train_builder, evaluator, device, structure_builder=structure_builder,
         ).to(device)
 
-        task.run(200, 100, "maximize").to(device)
+        task.run(200, 100, "maximize")
 
 
     else:
