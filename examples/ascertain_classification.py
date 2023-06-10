@@ -115,6 +115,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         outs = outs[train_idx]
 
     lbls = lbls[train_idx]
+    print(outs.size(), lbls.size())
     loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
@@ -157,18 +158,19 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
         elif model == "FC":
             return FC(feat_dimension, n_classes)
         elif model == "DHGNN":
+            n_layers = 5
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=8,
-            k_nearest=4,
-            k_cluster=4,
+            k_structured=97,
+            k_nearest=48,
+            k_cluster=57,
             wu_knn=0,
-            wu_kmeans=10,
-            wu_struct=5,
-            clusters=400,
-            adjacent_centers=1,
-            n_layers=2,
-            layer_spec=[feat_dimension],
+            wu_kmeans=7,
+            wu_struct=9,
+            clusters=862,
+            adjacent_centers=4,
+            n_layers=n_layers,
+            layer_spec=[feat_dimension for l in range(n_layers-1)],
             dropout_rate=drop_rate,
             has_bias=True,
             )
@@ -212,7 +214,7 @@ def model_builder(trial):
             clusters=trial.suggest_int("clusters", 100, 1000),
             adjacent_centers=trial.suggest_int("adjacent_centers", 1, 5),
             n_layers=n_layers,
-            layer_spec=[dim_features for l in range(n_layers)],
+            layer_spec=[dim_features for l in range(n_layers-1)],
             dropout_rate=trial.suggest_float("drop_rate", 0, 0.9),
             has_bias=True,
             )
@@ -235,32 +237,32 @@ if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    # selected_modalities = [['ECG']]
+    # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
     selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
     n_hidden_layers = 8 #8
-    k = 20 #4, 20    
-    lr = 0.001 #0.01, 0.001
-    weight_decay = 5*10**-4
+    k = 66 #4, 20    
+    lr = 0.0061 #0.01, 0.001
+    weight_decay = 0.0088
     n_conv = 2
-    drop_rate = 0.5
+    drop_rate = 0.37
     he_dropout = 0
     n_epoch = 10000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "DHGNN"
     fuse_models = False
     use_attributes = False
-    opti = False
-    trials = 1
+    opti = True
+    trials = 10
 
 
     final_acc = 0

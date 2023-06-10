@@ -58,5 +58,6 @@ class DHGNN(nn.Module):
         for i_layer in range(self.n_layers):
             x = self.gcs[i_layer](ids, x, edge_dict, G, ite, device)
 
-        # x = torch.sigmoid(x)
+        x = torch.sigmoid(x)
+
         return x
