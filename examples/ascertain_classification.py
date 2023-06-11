@@ -115,11 +115,10 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         outs = outs[train_idx]
 
     lbls = lbls[train_idx]
-    print(outs.size(), lbls.size())
     loss = F.binary_cross_entropy(outs, lbls)
     loss.backward()
     optimizer.step()
-    if epoch % 10 == 0:
+    if epoch % 1 == 0:
         print(f"Epoch: {epoch}, Time: {time.time()-st:.5f}s, Loss: {loss.item():.5f}")
     return loss.item()
 
@@ -158,16 +157,16 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
         elif model == "FC":
             return FC(feat_dimension, n_classes)
         elif model == "DHGNN":
-            n_layers = 5
+            n_layers = 2
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=97,
-            k_nearest=48,
-            k_cluster=57,
+            k_structured=80,
+            k_nearest=64,
+            k_cluster=74,
             wu_knn=0,
-            wu_kmeans=7,
-            wu_struct=9,
-            clusters=862,
+            wu_kmeans=2,
+            wu_struct=7,
+            clusters=800,
             adjacent_centers=4,
             n_layers=n_layers,
             layer_spec=[feat_dimension for l in range(n_layers-1)],
@@ -202,7 +201,7 @@ def structure_builder(trial):
 
 
 def model_builder(trial):
-    n_layers = trial.suggest_int("n_layers", 1, 5)
+    n_layers = 2
     return DHGNN(dim_feat=dim_features,
             n_categories=n_classes,
             k_structured=trial.suggest_int("k_structured", 3, 100),
@@ -261,7 +260,7 @@ if __name__ == "__main__":
     fusion_model = "DHGNN"
     fuse_models = False
     use_attributes = False
-    opti = True
+    opti = False
     trials = 10
 
 
