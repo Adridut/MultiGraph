@@ -1,0 +1,121 @@
+[INFO 2023-06-11 14:13:31,044]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-06-11--14-13-31/log.txt
+[INFO 2023-06-11 14:13:31,044]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-06-11--14-13-31
+[INFO 2023-06-11 14:13:31,045]-> Random seed is 1686460411
+[INFO 2023-06-11 14:13:31,232]-> A new study created in RDB with name: no-name-6fb84f23-fafb-4e27-bcbc-7d6e22c0433d
+[INFO 2023-06-11 14:13:45,448]-> Trial 0 finished with value: 0.6230031847953796 and parameters: {'k': 48, 'n_layers': 3, 'k_structured': 87, 'k_nearest': 65, 'k_cluster': 84, 'wu_kmeans': 8, 'wu_struct': 14, 'clusters': 511, 'adjacent_centers': 1, 'drop_rate': 0.4172981517098216, 'lr': 0.0017129047192319675, 'weight_decay': 0.00912992412421473}. Best is trial 0 with value: 0.6230031847953796.
+[INFO 2023-06-11 14:13:51,278]-> Trial 1 finished with value: 0.6230031847953796 and parameters: {'k': 19, 'n_layers': 3, 'k_structured': 14, 'k_nearest': 33, 'k_cluster': 40, 'wu_kmeans': 7, 'wu_struct': 15, 'clusters': 284, 'adjacent_centers': 4, 'drop_rate': 0.021255558507405382, 'lr': 0.003288542324806882, 'weight_decay': 0.004155677472710725}. Best is trial 0 with value: 0.6230031847953796.
+[INFO 2023-06-11 14:13:53,236]-> Trial 2 finished with value: 0.6293929815292358 and parameters: {'k': 13, 'n_layers': 1, 'k_structured': 28, 'k_nearest': 64, 'k_cluster': 15, 'wu_kmeans': 1, 'wu_struct': 12, 'clusters': 834, 'adjacent_centers': 1, 'drop_rate': 0.2874020226096536, 'lr': 0.0008409498925928739, 'weight_decay': 0.002213058130576115}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:14:08,178]-> Trial 3 finished with value: 0.6230031847953796 and parameters: {'k': 92, 'n_layers': 3, 'k_structured': 5, 'k_nearest': 70, 'k_cluster': 43, 'wu_kmeans': 1, 'wu_struct': 10, 'clusters': 525, 'adjacent_centers': 2, 'drop_rate': 0.25536474340371906, 'lr': 0.005765717344772282, 'weight_decay': 0.009877427767325881}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:14:13,564]-> Trial 4 finished with value: 0.6230031847953796 and parameters: {'k': 47, 'n_layers': 4, 'k_structured': 60, 'k_nearest': 7, 'k_cluster': 52, 'wu_kmeans': 12, 'wu_struct': 12, 'clusters': 876, 'adjacent_centers': 1, 'drop_rate': 0.46222254436493926, 'lr': 0.0015307390322890934, 'weight_decay': 0.004006183454632739}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:14:21,623]-> Trial 5 finished with value: 0.6230031847953796 and parameters: {'k': 71, 'n_layers': 5, 'k_structured': 5, 'k_nearest': 26, 'k_cluster': 46, 'wu_kmeans': 4, 'wu_struct': 15, 'clusters': 323, 'adjacent_centers': 4, 'drop_rate': 0.038232993981298535, 'lr': 0.005203317716398945, 'weight_decay': 0.006603613011449831}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:14:25,809]-> Trial 6 finished with value: 0.6230031847953796 and parameters: {'k': 5, 'n_layers': 3, 'k_structured': 31, 'k_nearest': 12, 'k_cluster': 8, 'wu_kmeans': 12, 'wu_struct': 15, 'clusters': 747, 'adjacent_centers': 1, 'drop_rate': 0.7181050356316133, 'lr': 0.009684921255971337, 'weight_decay': 0.008172128554412607}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:14:25,962]-> Trial 7 pruned. 
+[INFO 2023-06-11 14:14:34,498]-> Trial 8 finished with value: 0.6230031847953796 and parameters: {'k': 22, 'n_layers': 2, 'k_structured': 67, 'k_nearest': 70, 'k_cluster': 10, 'wu_kmeans': 5, 'wu_struct': 11, 'clusters': 163, 'adjacent_centers': 2, 'drop_rate': 0.7736139464740002, 'lr': 0.009768732322925302, 'weight_decay': 0.004681247755523322}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:00,287]-> Trial 9 finished with value: 0.6230031847953796 and parameters: {'k': 74, 'n_layers': 3, 'k_structured': 93, 'k_nearest': 97, 'k_cluster': 65, 'wu_kmeans': 11, 'wu_struct': 11, 'clusters': 760, 'adjacent_centers': 4, 'drop_rate': 0.3558520942600434, 'lr': 0.008579743775162846, 'weight_decay': 0.0030950463209020486}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:00,524]-> Trial 10 pruned. 
+[INFO 2023-06-11 14:15:08,167]-> Trial 11 finished with value: 0.6230031847953796 and parameters: {'k': 41, 'n_layers': 2, 'k_structured': 97, 'k_nearest': 65, 'k_cluster': 99, 'wu_kmeans': 15, 'wu_struct': 7, 'clusters': 731, 'adjacent_centers': 1, 'drop_rate': 0.5013002525452525, 'lr': 0.0018285797598516702, 'weight_decay': 0.006024688283403044}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:08,573]-> Trial 12 pruned. 
+[INFO 2023-06-11 14:15:21,335]-> Trial 13 finished with value: 0.6230031847953796 and parameters: {'k': 58, 'n_layers': 2, 'k_structured': 30, 'k_nearest': 82, 'k_cluster': 75, 'wu_kmeans': 9, 'wu_struct': 0, 'clusters': 418, 'adjacent_centers': 1, 'drop_rate': 0.3184166640378333, 'lr': 0.0033540459459439785, 'weight_decay': 0.007355404723142682}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:33,892]-> Trial 14 finished with value: 0.6230031847953796 and parameters: {'k': 35, 'n_layers': 4, 'k_structured': 80, 'k_nearest': 49, 'k_cluster': 27, 'wu_kmeans': 9, 'wu_struct': 9, 'clusters': 619, 'adjacent_centers': 2, 'drop_rate': 0.5513176512167011, 'lr': 0.0017635351992794878, 'weight_decay': 0.005673004160652916}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:34,212]-> Trial 15 pruned. 
+[INFO 2023-06-11 14:15:34,609]-> Trial 16 pruned. 
+[INFO 2023-06-11 14:15:41,628]-> Trial 17 finished with value: 0.6230031847953796 and parameters: {'k': 52, 'n_layers': 2, 'k_structured': 47, 'k_nearest': 60, 'k_cluster': 24, 'wu_kmeans': 9, 'wu_struct': 5, 'clusters': 874, 'adjacent_centers': 2, 'drop_rate': 0.42525838313344444, 'lr': 0.0031261433606595114, 'weight_decay': 0.005268830683970494}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:41,933]-> Trial 18 pruned. 
+[INFO 2023-06-11 14:15:52,701]-> Trial 19 finished with value: 0.6230031847953796 and parameters: {'k': 33, 'n_layers': 4, 'k_structured': 85, 'k_nearest': 44, 'k_cluster': 59, 'wu_kmeans': 4, 'wu_struct': 9, 'clusters': 836, 'adjacent_centers': 1, 'drop_rate': 0.40898332163716233, 'lr': 0.0005967542302696821, 'weight_decay': 0.00695461484826298}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:15:52,969]-> Trial 20 pruned. 
+[INFO 2023-06-11 14:15:58,122]-> Trial 21 finished with value: 0.6230031847953796 and parameters: {'k': 23, 'n_layers': 3, 'k_structured': 22, 'k_nearest': 27, 'k_cluster': 37, 'wu_kmeans': 7, 'wu_struct': 15, 'clusters': 206, 'adjacent_centers': 4, 'drop_rate': 0.02866203460089395, 'lr': 0.0024442422193787566, 'weight_decay': 0.004212318335411552}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:16:05,525]-> Trial 22 finished with value: 0.6230031847953796 and parameters: {'k': 13, 'n_layers': 3, 'k_structured': 15, 'k_nearest': 41, 'k_cluster': 18, 'wu_kmeans': 6, 'wu_struct': 12, 'clusters': 358, 'adjacent_centers': 5, 'drop_rate': 0.1176718482449014, 'lr': 0.0013295392496234185, 'weight_decay': 0.008680847474711427}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:16:18,475]-> Trial 23 pruned. 
+[INFO 2023-06-11 14:16:18,826]-> Trial 24 pruned. 
+[INFO 2023-06-11 14:16:25,518]-> Trial 25 finished with value: 0.6230031847953796 and parameters: {'k': 11, 'n_layers': 3, 'k_structured': 55, 'k_nearest': 37, 'k_cluster': 71, 'wu_kmeans': 13, 'wu_struct': 14, 'clusters': 289, 'adjacent_centers': 4, 'drop_rate': 0.08662435105320224, 'lr': 0.0010357313846598778, 'weight_decay': 0.003588271657611156}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:07,733]-> Trial 26 finished with value: 0.6230031847953796 and parameters: {'k': 22, 'n_layers': 5, 'k_structured': 9, 'k_nearest': 89, 'k_cluster': 87, 'wu_kmeans': 8, 'wu_struct': 12, 'clusters': 461, 'adjacent_centers': 2, 'drop_rate': 0.1798930349049489, 'lr': 0.0026475713966175847, 'weight_decay': 0.005415211020670697}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:07,997]-> Trial 27 pruned. 
+[INFO 2023-06-11 14:17:15,078]-> Trial 28 finished with value: 0.6230031847953796 and parameters: {'k': 84, 'n_layers': 2, 'k_structured': 25, 'k_nearest': 60, 'k_cluster': 35, 'wu_kmeans': 8, 'wu_struct': 10, 'clusters': 536, 'adjacent_centers': 2, 'drop_rate': 0.3439804247454961, 'lr': 0.004239549022772457, 'weight_decay': 0.0029302812240910104}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:30,570]-> Trial 29 finished with value: 0.6230031847953796 and parameters: {'k': 100, 'n_layers': 3, 'k_structured': 3, 'k_nearest': 72, 'k_cluster': 42, 'wu_kmeans': 1, 'wu_struct': 13, 'clusters': 523, 'adjacent_centers': 3, 'drop_rate': 0.011167453288130569, 'lr': 0.004107204173266422, 'weight_decay': 0.009585676460258588}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:42,438]-> Trial 30 finished with value: 0.6230031847953796 and parameters: {'k': 54, 'n_layers': 4, 'k_structured': 14, 'k_nearest': 47, 'k_cluster': 18, 'wu_kmeans': 3, 'wu_struct': 10, 'clusters': 804, 'adjacent_centers': 2, 'drop_rate': 0.2544972892939609, 'lr': 0.0006192955400924982, 'weight_decay': 0.007700995837809635}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:42,798]-> Trial 31 pruned. 
+[INFO 2023-06-11 14:17:43,099]-> Trial 32 pruned. 
+[INFO 2023-06-11 14:17:59,091]-> Trial 33 finished with value: 0.6230031847953796 and parameters: {'k': 62, 'n_layers': 3, 'k_structured': 19, 'k_nearest': 73, 'k_cluster': 54, 'wu_kmeans': 4, 'wu_struct': 14, 'clusters': 451, 'adjacent_centers': 1, 'drop_rate': 0.06705084715395598, 'lr': 0.006680792242066608, 'weight_decay': 0.009198855474255915}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:17:59,334]-> Trial 34 pruned. 
+[INFO 2023-06-11 14:17:59,675]-> Trial 35 pruned. 
+[INFO 2023-06-11 14:18:00,088]-> Trial 36 pruned. 
+[INFO 2023-06-11 14:18:00,404]-> Trial 37 pruned. 
+[INFO 2023-06-11 14:18:13,102]-> Trial 38 finished with value: 0.6230031847953796 and parameters: {'k': 3, 'n_layers': 3, 'k_structured': 89, 'k_nearest': 63, 'k_cluster': 71, 'wu_kmeans': 4, 'wu_struct': 9, 'clusters': 729, 'adjacent_centers': 3, 'drop_rate': 0.06227009329426235, 'lr': 0.0031809965265585647, 'weight_decay': 0.009958358855700879}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:18:13,346]-> Trial 39 pruned. 
+[INFO 2023-06-11 14:18:22,572]-> Trial 40 finished with value: 0.6230031847953796 and parameters: {'k': 41, 'n_layers': 2, 'k_structured': 35, 'k_nearest': 14, 'k_cluster': 13, 'wu_kmeans': 0, 'wu_struct': 15, 'clusters': 514, 'adjacent_centers': 2, 'drop_rate': 0.4886708345845576, 'lr': 0.0021533123336379993, 'weight_decay': 0.006997693088666118}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:18:23,363]-> Trial 41 pruned. 
+[INFO 2023-06-11 14:18:23,720]-> Trial 42 pruned. 
+[INFO 2023-06-11 14:18:24,179]-> Trial 43 pruned. 
+[INFO 2023-06-11 14:18:28,216]-> Trial 44 finished with value: 0.6230031847953796 and parameters: {'k': 24, 'n_layers': 3, 'k_structured': 61, 'k_nearest': 11, 'k_cluster': 29, 'wu_kmeans': 3, 'wu_struct': 8, 'clusters': 946, 'adjacent_centers': 2, 'drop_rate': 0.23094451656157128, 'lr': 0.0006866767478647286, 'weight_decay': 0.004688299003731772}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:18:42,741]-> Trial 45 finished with value: 0.6230031847953796 and parameters: {'k': 56, 'n_layers': 4, 'k_structured': 80, 'k_nearest': 54, 'k_cluster': 77, 'wu_kmeans': 12, 'wu_struct': 1, 'clusters': 693, 'adjacent_centers': 1, 'drop_rate': 0.27599881743567445, 'lr': 0.001198230714528558, 'weight_decay': 0.0033474039687097727}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:18:46,280]-> Trial 46 finished with value: 0.6230031847953796 and parameters: {'k': 35, 'n_layers': 2, 'k_structured': 92, 'k_nearest': 22, 'k_cluster': 62, 'wu_kmeans': 10, 'wu_struct': 13, 'clusters': 762, 'adjacent_centers': 5, 'drop_rate': 0.4230495803916769, 'lr': 0.002378895896046073, 'weight_decay': 0.0013441303589702275}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:18:53,945]-> Trial 47 finished with value: 0.6230031847953796 and parameters: {'k': 49, 'n_layers': 3, 'k_structured': 29, 'k_nearest': 42, 'k_cluster': 39, 'wu_kmeans': 7, 'wu_struct': 7, 'clusters': 610, 'adjacent_centers': 3, 'drop_rate': 0.34348171754008455, 'lr': 0.00035688681120774697, 'weight_decay': 0.004888464198747409}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:19:00,255]-> Trial 48 finished with value: 0.6230031847953796 and parameters: {'k': 18, 'n_layers': 3, 'k_structured': 24, 'k_nearest': 35, 'k_cluster': 92, 'wu_kmeans': 11, 'wu_struct': 10, 'clusters': 888, 'adjacent_centers': 1, 'drop_rate': 0.5130039277121214, 'lr': 0.0028760585204767367, 'weight_decay': 0.005461477576887317}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:19:00,685]-> Trial 49 pruned. 
+[INFO 2023-06-11 14:19:01,079]-> Trial 50 pruned. 
+[INFO 2023-06-11 14:19:01,444]-> Trial 51 pruned. 
+[INFO 2023-06-11 14:19:01,805]-> Trial 52 pruned. 
+[INFO 2023-06-11 14:19:07,349]-> Trial 53 finished with value: 0.6230031847953796 and parameters: {'k': 90, 'n_layers': 4, 'k_structured': 18, 'k_nearest': 10, 'k_cluster': 57, 'wu_kmeans': 2, 'wu_struct': 15, 'clusters': 259, 'adjacent_centers': 4, 'drop_rate': 0.09123779419886255, 'lr': 0.0036631561837155357, 'weight_decay': 0.007542501581492382}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:19:07,660]-> Trial 54 pruned. 
+[INFO 2023-06-11 14:20:18,308]-> Trial 55 finished with value: 0.6230031847953796 and parameters: {'k': 97, 'n_layers': 3, 'k_structured': 69, 'k_nearest': 32, 'k_cluster': 82, 'wu_kmeans': 0, 'wu_struct': 13, 'clusters': 840, 'adjacent_centers': 3, 'drop_rate': 0.0393066808963346, 'lr': 0.005386723094055456, 'weight_decay': 0.004976451394536669}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:20:18,828]-> Trial 56 pruned. 
+[INFO 2023-06-11 14:20:19,229]-> Trial 57 pruned. 
+[INFO 2023-06-11 14:20:19,562]-> Trial 58 pruned. 
+[INFO 2023-06-11 14:20:27,809]-> Trial 59 finished with value: 0.6230031847953796 and parameters: {'k': 43, 'n_layers': 3, 'k_structured': 7, 'k_nearest': 45, 'k_cluster': 38, 'wu_kmeans': 2, 'wu_struct': 12, 'clusters': 561, 'adjacent_centers': 5, 'drop_rate': 0.15183763565049063, 'lr': 0.002428767085071664, 'weight_decay': 0.0031023721566771707}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:20:28,141]-> Trial 60 pruned. 
+[INFO 2023-06-11 14:20:28,398]-> Trial 61 pruned. 
+[INFO 2023-06-11 14:20:28,652]-> Trial 62 pruned. 
+[INFO 2023-06-11 14:20:28,954]-> Trial 63 pruned. 
+[INFO 2023-06-11 14:20:33,855]-> Trial 64 finished with value: 0.6230031847953796 and parameters: {'k': 20, 'n_layers': 3, 'k_structured': 45, 'k_nearest': 25, 'k_cluster': 46, 'wu_kmeans': 11, 'wu_struct': 14, 'clusters': 725, 'adjacent_centers': 1, 'drop_rate': 0.6911935057621905, 'lr': 0.004511404001429964, 'weight_decay': 0.009643817259681848}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:20:34,220]-> Trial 65 pruned. 
+[INFO 2023-06-11 14:20:38,219]-> Trial 66 finished with value: 0.6230031847953796 and parameters: {'k': 14, 'n_layers': 3, 'k_structured': 23, 'k_nearest': 17, 'k_cluster': 42, 'wu_kmeans': 13, 'wu_struct': 13, 'clusters': 614, 'adjacent_centers': 4, 'drop_rate': 0.38383493301639987, 'lr': 0.007240544739894399, 'weight_decay': 0.008497243167625573}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:20:38,498]-> Trial 67 pruned. 
+[INFO 2023-06-11 14:20:38,731]-> Trial 68 pruned. 
+[INFO 2023-06-11 14:20:39,118]-> Trial 69 pruned. 
+[INFO 2023-06-11 14:20:52,052]-> Trial 70 finished with value: 0.6230031847953796 and parameters: {'k': 3, 'n_layers': 3, 'k_structured': 12, 'k_nearest': 22, 'k_cluster': 12, 'wu_kmeans': 0, 'wu_struct': 15, 'clusters': 381, 'adjacent_centers': 1, 'drop_rate': 0.30959551191710843, 'lr': 0.004390101357098023, 'weight_decay': 0.0078823785299811}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:20:52,349]-> Trial 71 pruned. 
+[INFO 2023-06-11 14:20:52,604]-> Trial 72 pruned. 
+[INFO 2023-06-11 14:21:02,839]-> Trial 73 finished with value: 0.6230031847953796 and parameters: {'k': 14, 'n_layers': 2, 'k_structured': 50, 'k_nearest': 79, 'k_cluster': 15, 'wu_kmeans': 7, 'wu_struct': 8, 'clusters': 450, 'adjacent_centers': 3, 'drop_rate': 0.20538475329323314, 'lr': 0.002006242444609883, 'weight_decay': 0.005647228538217772}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:21:03,203]-> Trial 74 pruned. 
+[INFO 2023-06-11 14:21:03,489]-> Trial 75 pruned. 
+[INFO 2023-06-11 14:21:17,232]-> Trial 76 finished with value: 0.6230031847953796 and parameters: {'k': 49, 'n_layers': 3, 'k_structured': 89, 'k_nearest': 66, 'k_cluster': 100, 'wu_kmeans': 5, 'wu_struct': 10, 'clusters': 786, 'adjacent_centers': 2, 'drop_rate': 0.42722619070173395, 'lr': 0.0004998964930108037, 'weight_decay': 0.004480460147256403}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:21:17,524]-> Trial 77 pruned. 
+[INFO 2023-06-11 14:21:47,914]-> Trial 78 finished with value: 0.6230031847953796 and parameters: {'k': 10, 'n_layers': 4, 'k_structured': 71, 'k_nearest': 86, 'k_cluster': 30, 'wu_kmeans': 2, 'wu_struct': 9, 'clusters': 324, 'adjacent_centers': 1, 'drop_rate': 0.2376099500294715, 'lr': 0.004006231100962409, 'weight_decay': 0.005038748747318492}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:21:48,204]-> Trial 79 pruned. 
+[INFO 2023-06-11 14:21:48,550]-> Trial 80 pruned. 
+[INFO 2023-06-11 14:21:49,020]-> Trial 81 pruned. 
+[INFO 2023-06-11 14:21:58,644]-> Trial 82 finished with value: 0.6230031847953796 and parameters: {'k': 63, 'n_layers': 3, 'k_structured': 93, 'k_nearest': 51, 'k_cluster': 74, 'wu_kmeans': 13, 'wu_struct': 10, 'clusters': 746, 'adjacent_centers': 4, 'drop_rate': 0.3016998955810345, 'lr': 0.009906956255088162, 'weight_decay': 0.003726272675782738}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:22:23,575]-> Trial 83 finished with value: 0.6230031847953796 and parameters: {'k': 85, 'n_layers': 3, 'k_structured': 95, 'k_nearest': 95, 'k_cluster': 59, 'wu_kmeans': 9, 'wu_struct': 5, 'clusters': 708, 'adjacent_centers': 4, 'drop_rate': 0.4692650033926297, 'lr': 0.0018218672432491522, 'weight_decay': 0.0033468081866411094}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:22:31,919]-> Trial 84 finished with value: 0.6230031847953796 and parameters: {'k': 74, 'n_layers': 2, 'k_structured': 90, 'k_nearest': 68, 'k_cluster': 43, 'wu_kmeans': 12, 'wu_struct': 12, 'clusters': 780, 'adjacent_centers': 4, 'drop_rate': 0.3893047826331311, 'lr': 0.009975939250389755, 'weight_decay': 0.009742202146258497}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:22:36,274]-> Trial 85 finished with value: 0.6230031847953796 and parameters: {'k': 55, 'n_layers': 3, 'k_structured': 80, 'k_nearest': 13, 'k_cluster': 41, 'wu_kmeans': 11, 'wu_struct': 13, 'clusters': 584, 'adjacent_centers': 4, 'drop_rate': 0.42754578993912895, 'lr': 0.00013371882211675869, 'weight_decay': 0.004624037169226028}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:01,490]-> Trial 86 finished with value: 0.6230031847953796 and parameters: {'k': 82, 'n_layers': 4, 'k_structured': 85, 'k_nearest': 77, 'k_cluster': 36, 'wu_kmeans': 10, 'wu_struct': 11, 'clusters': 827, 'adjacent_centers': 1, 'drop_rate': 0.18748904872070757, 'lr': 0.005920000220161823, 'weight_decay': 0.009211804866782648}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:01,792]-> Trial 87 pruned. 
+[INFO 2023-06-11 14:23:02,372]-> Trial 88 pruned. 
+[INFO 2023-06-11 14:23:02,671]-> Trial 89 pruned. 
+[INFO 2023-06-11 14:23:03,019]-> Trial 90 pruned. 
+[INFO 2023-06-11 14:23:10,651]-> Trial 91 finished with value: 0.6230031847953796 and parameters: {'k': 38, 'n_layers': 2, 'k_structured': 87, 'k_nearest': 64, 'k_cluster': 78, 'wu_kmeans': 15, 'wu_struct': 6, 'clusters': 726, 'adjacent_centers': 1, 'drop_rate': 0.40508964323347446, 'lr': 0.0010455349441285307, 'weight_decay': 0.0066739433529476675}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:11,065]-> Trial 92 pruned. 
+[INFO 2023-06-11 14:23:18,156]-> Trial 93 finished with value: 0.6230031847953796 and parameters: {'k': 52, 'n_layers': 2, 'k_structured': 10, 'k_nearest': 60, 'k_cluster': 70, 'wu_kmeans': 13, 'wu_struct': 7, 'clusters': 549, 'adjacent_centers': 1, 'drop_rate': 0.36368923721201263, 'lr': 0.002031451042176876, 'weight_decay': 0.005377456102552589}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:22,520]-> Trial 94 finished with value: 0.6230031847953796 and parameters: {'k': 46, 'n_layers': 3, 'k_structured': 93, 'k_nearest': 3, 'k_cluster': 97, 'wu_kmeans': 7, 'wu_struct': 15, 'clusters': 476, 'adjacent_centers': 1, 'drop_rate': 0.4426750231332039, 'lr': 0.0012697263775186837, 'weight_decay': 0.004893466147415741}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:22,832]-> Trial 95 pruned. 
+[INFO 2023-06-11 14:23:23,199]-> Trial 96 pruned. 
+[INFO 2023-06-11 14:23:31,170]-> Trial 97 finished with value: 0.6230031847953796 and parameters: {'k': 89, 'n_layers': 2, 'k_structured': 34, 'k_nearest': 65, 'k_cluster': 17, 'wu_kmeans': 15, 'wu_struct': 13, 'clusters': 789, 'adjacent_centers': 4, 'drop_rate': 0.32059026559849957, 'lr': 0.004880090233562206, 'weight_decay': 0.007151383329508057}. Best is trial 2 with value: 0.6293929815292358.
+[INFO 2023-06-11 14:23:31,465]-> Trial 98 pruned. 
+[INFO 2023-06-11 14:23:32,496]-> Best trial:
+[INFO 2023-06-11 14:23:32,510]-> 	Value: 0.629
+[INFO 2023-06-11 14:23:32,510]-> 	Params:
+[INFO 2023-06-11 14:23:32,510]-> 		adjacent_centers |-> 1
+[INFO 2023-06-11 14:23:32,510]-> 		clusters |-> 834
+[INFO 2023-06-11 14:23:32,510]-> 		drop_rate |-> 0.2874020226096536
+[INFO 2023-06-11 14:23:32,511]-> 		k |-> 13
+[INFO 2023-06-11 14:23:32,511]-> 		k_cluster |-> 15
+[INFO 2023-06-11 14:23:32,511]-> 		k_nearest |-> 64
+[INFO 2023-06-11 14:23:32,511]-> 		k_structured |-> 28
+[INFO 2023-06-11 14:23:32,512]-> 		lr |-> 0.0008409498925928739
+[INFO 2023-06-11 14:23:32,512]-> 		n_layers |-> 1
+[INFO 2023-06-11 14:23:32,512]-> 		weight_decay |-> 0.002213058130576115
+[INFO 2023-06-11 14:23:32,512]-> 		wu_kmeans |-> 1
+[INFO 2023-06-11 14:23:32,513]-> 		wu_struct |-> 12
+[INFO 2023-06-11 14:23:32,529]-> Final test results:
+[INFO 2023-06-11 14:23:32,529]-> 	accuracy |-> 0.556
+[INFO 2023-06-11 14:23:32,529]-> 	f1_score |-> 0.503

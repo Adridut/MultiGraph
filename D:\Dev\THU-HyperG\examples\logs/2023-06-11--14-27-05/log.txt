@@ -1,0 +1,25 @@
+[INFO 2023-06-11 14:27:05,430]-> Logs will be saved to /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-06-11--14-27-05/log.txt
+[INFO 2023-06-11 14:27:05,431]-> Files in training will be saved in /home/adriendutfoy/Desktop/Dev/MultiGraph/D:\Dev\THU-HyperG\examples\logs/2023-06-11--14-27-05
+[INFO 2023-06-11 14:27:05,431]-> Random seed is 1686461225
+[INFO 2023-06-11 14:27:05,620]-> A new study created in RDB with name: no-name-102d2132-d90f-469d-a310-62a4d5ca2eef
+[INFO 2023-06-11 14:27:14,917]-> Trial 0 finished with value: 0.6230031847953796 and parameters: {'k': 96, 'n_layers': 5, 'k_structured': 5, 'k_nearest': 4, 'k_cluster': 81, 'wu_kmeans': 5, 'wu_struct': 8, 'clusters': 143, 'adjacent_centers': 4, 'drop_rate': 0.5743133163103769, 'lr': 0.006481703422139104, 'weight_decay': 0.004838106544067384}. Best is trial 0 with value: 0.6230031847953796.
+[INFO 2023-06-11 14:28:39,175]-> Trial 1 finished with value: 0.6230031847953796 and parameters: {'k': 83, 'n_layers': 2, 'k_structured': 90, 'k_nearest': 49, 'k_cluster': 81, 'wu_kmeans': 10, 'wu_struct': 11, 'clusters': 229, 'adjacent_centers': 1, 'drop_rate': 0.07221889195380261, 'lr': 0.0029104556010838673, 'weight_decay': 0.008663420308614155}. Best is trial 0 with value: 0.6230031847953796.
+[INFO 2023-06-11 14:39:59,994]-> Trial 2 finished with value: 0.6230031847953796 and parameters: {'k': 4, 'n_layers': 4, 'k_structured': 57, 'k_nearest': 82, 'k_cluster': 87, 'wu_kmeans': 4, 'wu_struct': 14, 'clusters': 203, 'adjacent_centers': 5, 'drop_rate': 0.6073672252893896, 'lr': 0.004364285552257279, 'weight_decay': 0.0047304052345469964}. Best is trial 0 with value: 0.6230031847953796.
+[INFO 2023-06-11 14:40:00,377]-> Best trial:
+[INFO 2023-06-11 14:40:00,387]-> 	Value: 0.623
+[INFO 2023-06-11 14:40:00,387]-> 	Params:
+[INFO 2023-06-11 14:40:00,387]-> 		adjacent_centers |-> 4
+[INFO 2023-06-11 14:40:00,387]-> 		clusters |-> 143
+[INFO 2023-06-11 14:40:00,388]-> 		drop_rate |-> 0.5743133163103769
+[INFO 2023-06-11 14:40:00,388]-> 		k |-> 96
+[INFO 2023-06-11 14:40:00,388]-> 		k_cluster |-> 81
+[INFO 2023-06-11 14:40:00,388]-> 		k_nearest |-> 4
+[INFO 2023-06-11 14:40:00,388]-> 		k_structured |-> 5
+[INFO 2023-06-11 14:40:00,388]-> 		lr |-> 0.006481703422139104
+[INFO 2023-06-11 14:40:00,388]-> 		n_layers |-> 5
+[INFO 2023-06-11 14:40:00,388]-> 		weight_decay |-> 0.004838106544067384
+[INFO 2023-06-11 14:40:00,389]-> 		wu_kmeans |-> 5
+[INFO 2023-06-11 14:40:00,389]-> 		wu_struct |-> 8
+[INFO 2023-06-11 14:40:00,429]-> Final test results:
+[INFO 2023-06-11 14:40:00,429]-> 	accuracy |-> 0.607
+[INFO 2023-06-11 14:40:00,429]-> 	f1_score |-> 0.378
