@@ -160,14 +160,14 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             n_layers = 2
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=80,
-            k_nearest=64,
-            k_cluster=74,
+            k_structured=33,
+            k_nearest=25,
+            k_cluster=100,
             wu_knn=0,
-            wu_kmeans=2,
-            wu_struct=7,
-            clusters=800,
-            adjacent_centers=4,
+            wu_kmeans=4,
+            wu_struct=2,
+            clusters=249,
+            adjacent_centers=2,
             n_layers=n_layers,
             layer_spec=[feat_dimension for l in range(n_layers-1)],
             dropout_rate=drop_rate,
@@ -249,9 +249,9 @@ if __name__ == "__main__":
     test_ratio = 15
     n_classes = 2
     n_hidden_layers = 8 #8
-    k = 66 #4, 20    
-    lr = 0.0061 #0.01, 0.001
-    weight_decay = 0.0088
+    k = 17 #4, 20    
+    lr = 0.0065 #0.01, 0.001
+    weight_decay = 0.0002
     n_conv = 2
     drop_rate = 0.37
     he_dropout = 0
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     fusion_model = "DHGNN"
     fuse_models = False
     use_attributes = False
-    opti = True
+    opti = False
     trials = 10
 
 
