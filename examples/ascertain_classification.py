@@ -160,14 +160,14 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             n_layers = 2
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=33,
-            k_nearest=25,
-            k_cluster=100,
+            k_structured=29,
+            k_nearest=86,
+            k_cluster=4,
             wu_knn=0,
-            wu_kmeans=4,
-            wu_struct=2,
-            clusters=249,
-            adjacent_centers=2,
+            wu_kmeans=10,
+            wu_struct=5,
+            clusters=604,
+            adjacent_centers=3,
             n_layers=n_layers,
             layer_spec=[feat_dimension for l in range(n_layers-1)],
             dropout_rate=drop_rate,
@@ -243,17 +243,17 @@ if __name__ == "__main__":
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "arousal"
+    label = "valence"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
     n_hidden_layers = 8 #8
-    k = 17 #4, 20    
-    lr = 0.0065 #0.01, 0.001
-    weight_decay = 0.0002
+    k = 95 #4, 20    
+    lr = 0.0072 #0.01, 0.001
+    weight_decay = 0.0076
     n_conv = 2
-    drop_rate = 0.37
+    drop_rate = 0.03
     he_dropout = 0
     n_epoch = 10000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
