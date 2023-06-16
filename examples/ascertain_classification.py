@@ -161,6 +161,7 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             n_layers = 2
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
+<<<<<<< HEAD
             k_structured=k_structured,
             k_nearest=k_nearest,
             k_cluster=k_cluster,
@@ -169,6 +170,16 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             wu_struct=wu_struct,
             clusters=clusters,
             adjacent_centers=adjacent_centers,
+=======
+            k_structured=29,
+            k_nearest=86,
+            k_cluster=4,
+            wu_knn=0,
+            wu_kmeans=10,
+            wu_struct=5,
+            clusters=604,
+            adjacent_centers=3,
+>>>>>>> b5ec9f69048f491eea11dac0b9259dd9db6c97a1
             n_layers=n_layers,
             layer_spec=[feat_dimension for l in range(n_layers-1)],
             dropout_rate=drop_rate,
@@ -236,10 +247,14 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+<<<<<<< HEAD
     selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+=======
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+>>>>>>> b5ec9f69048f491eea11dac0b9259dd9db6c97a1
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
@@ -249,7 +264,17 @@ if __name__ == "__main__":
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
+<<<<<<< HEAD
 
+=======
+    n_hidden_layers = 8 #8
+    k = 95 #4, 20    
+    lr = 0.0072 #0.01, 0.001
+    weight_decay = 0.0076
+    n_conv = 2
+    drop_rate = 0.03
+    he_dropout = 0
+>>>>>>> b5ec9f69048f491eea11dac0b9259dd9db6c97a1
     n_epoch = 10000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
@@ -285,8 +310,8 @@ if __name__ == "__main__":
     all_f1s = [0 for m in selected_modalities]
 
     if opti:
-        work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
-        # work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
+        # work_root = "D:\Dev\THU-HyperG\examples\logs" # PC
+        work_root = "/home/adriendutfoy/Desktop/Dev/MultiGraph/examples/logs" # JEMARO computer
 
         num_classes = 2
 
