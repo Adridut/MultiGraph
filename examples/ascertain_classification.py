@@ -111,6 +111,7 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         ids = torch.tensor(ids).long()[train_idx].to(device)
         outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
     else:
+        print(X.size())
         outs = net(X, A)
         outs = outs[train_idx]
 
@@ -149,7 +150,7 @@ def infer(net, X, A, lbls, idx, epoch, model_name, device, test=False):
     return res, all_outs
 
 
-def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop_rate, he_dropout):
+def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop_rate, he_dropout, adjacent_centers, clusters, k_structured, k_nearest, k_cluster, wu_kmeans, wu_struct):
         if model == "HGNN":
             return HGNN(feat_dimension, n_hidden_layers, n_classes, n_conv, use_bn=True, drop_rate=drop_rate, he_dropout=he_dropout)
         elif model == "HGNNP":
@@ -160,14 +161,14 @@ def select_model(feat_dimension, n_hidden_layers, n_classes, n_conv, model, drop
             n_layers = 2
             return DHGNN(dim_feat=feat_dimension,
             n_categories=n_classes,
-            k_structured=80,
-            k_nearest=64,
-            k_cluster=74,
+            k_structured=k_structured,
+            k_nearest=k_nearest,
+            k_cluster=k_cluster,
             wu_knn=0,
-            wu_kmeans=2,
-            wu_struct=7,
-            clusters=800,
-            adjacent_centers=4,
+            wu_kmeans=wu_kmeans,
+            wu_struct=wu_struct,
+            clusters=clusters,
+            adjacent_centers=adjacent_centers,
             n_layers=n_layers,
             layer_spec=[feat_dimension for l in range(n_layers-1)],
             dropout_rate=drop_rate,
@@ -235,8 +236,8 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
-    selected_modalities = [['GSR']]
+    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
     # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
@@ -248,22 +249,35 @@ if __name__ == "__main__":
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
-    n_hidden_layers = 8 #8
-    k = 66 #4, 20    
-    lr = 0.0061 #0.01, 0.001
-    weight_decay = 0.0088
-    n_conv = 2
-    drop_rate = 0.37
-    he_dropout = 0
+
     n_epoch = 10000
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
-    fusion_model = "DHGNN"
-    fuse_models = False
+    fusion_model = "HGNNP"
+    fuse_models = True
     use_attributes = False
-    opti = True
+    opti = False
     trials = 10
 
+    k = 66 #4, 20   
+    drop_rate = 0.37
+    lr = 0.001 #0.01, 0.001
+    weight_decay = 5e-4
+    n_hidden_layers = 8 #8
+    n_conv = 2
+    he_dropout = 0.5
 
+    # For DHGNN
+    d_adjacent_centers=[4,5,2,4]
+    d_clusters=[455, 366, 365, 215]
+    d_drop_rate = [0.23, 0.37, 0.5, 0.56]
+    d_k = [77,91,51,45] 
+    d_k_cluster= [88,36,81,13]
+    d_k_nearest=[57,56,59,31]
+    d_k_structured=[25,88,43,29]
+    d_lr = [0.0042,0.0081,0.0029,0.0013] #0.01, 0.001
+    d_weight_decay = [0.0073,0.0089,0.0084,0.0099]
+    d_wu_kmeans=[3,0,11,13]
+    d_wu_struct=[8,9,15,10]
 
     final_acc = 0
     final_f1 = 0
@@ -318,9 +332,22 @@ if __name__ == "__main__":
                 for m in selected_modalities:
                     # n_hidden_layers = hds[i]
 
+                    adjacent_centers = d_adjacent_centers[i]
+                    clusters = d_clusters[i]
+                    drop_rate = d_drop_rate[i]
+                    k = d_k[i]
+                    k_cluster = d_k_cluster[i]
+                    k_nearest = d_k_nearest[i]
+                    k_structured = d_k_structured[i]
+                    lr = d_lr[i]
+                    weight_decay = d_weight_decay[i]
+                    wu_kmeans = d_wu_kmeans[i]
+                    wu_struct = d_wu_struct[i]
+
+
                     print_log("loading data: " + str(m))
                     X, Y, train_mask, test_mask, val_mask, sa, va, lpa, hpa = load_ASERTAIN(selected_modalities=m, label=label, train_ratio=train_ratio, val_ratio=val_ratio, test_ratio=test_ratio, trial=trial)
-                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
+                    model = select_model(feat_dimension=X.shape[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=model_name, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout, adjacent_centers=adjacent_centers, clusters=clusters, k_cluster=k_cluster, k_nearest=k_nearest, k_structured=k_structured, wu_kmeans=wu_kmeans, wu_struct=wu_struct)
 
                     X = torch.tensor(X).float()
 
@@ -367,6 +394,14 @@ if __name__ == "__main__":
                 if fuse_models:
                     print_log("fusing models with: " + fusion_model)
 
+                    k = 4 #4, 20   
+                    drop_rate = 0.5
+                    lr = 0.001 #0.01, 0.001
+                    weight_decay = 5*10**-4
+                    n_hidden_layers = 8 #8
+                    n_conv = 2
+                    he_dropout = 0.5
+
                     if fusion_model=="HGNNP":
                         G = Hypergraph(2088)
                         i = 0
@@ -375,22 +410,23 @@ if __name__ == "__main__":
                         accs.append(0.5)
                         # normalize weights so their sum is 1
                         weights = [float(i)/sum(accs) for i in accs]
-                        print(weights)
+                        print("weights: ", weights)
+                        average_weight_index = len(inputs)
 
 
                         if use_attributes:
                             for a in sa:
-                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[average_weight_index])
                            
                             for a in va:
-                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[average_weight_index])
 
                             for a in lpa:
-                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[average_weight_index])
                                 i += 1
 
                             for a in hpa:
-                                G.add_hyperedges(a, group_name="attr", e_weight=weights[len(inputs)])
+                                G.add_hyperedges(a, group_name="attr", e_weight=weights[average_weight_index])
 
                         j = 0
                         for i in inputs:
@@ -398,12 +434,12 @@ if __name__ == "__main__":
                             j += 1
 
                         inputs = torch.cat(inputs, 1)
-                        G.add_hyperedges_from_feature_kNN(inputs, k=k, group_name="modality_fusion")
+                        G.add_hyperedges_from_feature_kNN(inputs, k=k, group_name="modality_fusion", e_weight=weights[average_weight_index])
                     
                     else:
                         inputs = torch.cat(inputs, 1)
 
-                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout)
+                    model = select_model(feat_dimension=inputs.size()[1], n_hidden_layers=n_hidden_layers, n_classes=n_classes, model=fusion_model, n_conv=n_conv, drop_rate=drop_rate, he_dropout=he_dropout, adjacent_centers=adjacent_centers, clusters=clusters, k_cluster=k_cluster, k_nearest=k_nearest, k_structured=k_structured, wu_kmeans=wu_kmeans, wu_struct=wu_struct)
 
                     final_res, _ = run(device, inputs, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, fusion_model)
                     final_acc += final_res['accuracy']
