@@ -253,7 +253,7 @@ if __name__ == "__main__":
     model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = True
-    use_attributes = False
+    use_attributes = True
     opti = False
     trials = 10
 
