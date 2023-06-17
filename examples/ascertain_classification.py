@@ -254,7 +254,7 @@ if __name__ == "__main__":
     fuse_models = True
     use_attributes = True
     opti = False
-    trials = 1
+    trials = 10
 
     k = 66 #4, 20   
     drop_rate = 0.37
