@@ -111,7 +111,6 @@ def train(net, X, A, lbls, train_idx, optimizer, epoch, model_name, device):
         ids = torch.tensor(ids).long()[train_idx].to(device)
         outs = net(ids=ids, feats=X, edge_dict=A.e_list, G=A.H, ite=epoch, device=device)
     else:
-        print(X.size())
         outs = net(X, A)
         outs = outs[train_idx]
 
@@ -255,7 +254,7 @@ if __name__ == "__main__":
     fuse_models = True
     use_attributes = True
     opti = False
-    trials = 10
+    trials = 1
 
     k = 66 #4, 20   
     drop_rate = 0.37
@@ -338,10 +337,24 @@ if __name__ == "__main__":
                     k_cluster = d_k_cluster[i]
                     k_nearest = d_k_nearest[i]
                     k_structured = d_k_structured[i]
-                    lr = d_lr[i]
-                    weight_decay = d_weight_decay[i]
+                    # lr = d_lr[i]
+                    # weight_decay = d_weight_decay[i]
                     wu_kmeans = d_wu_kmeans[i]
                     wu_struct = d_wu_struct[i]
+
+                    # adjacent_centers = 1
+                    # clusters = 400
+                    # drop_rate = 0.5
+                    # k = 4
+                    # k_cluster = 4 #64
+                    # k_nearest = 4 #64
+                    # k_structured = 8 #8
+                    # wu_kmeans = 10
+                    # wu_struct = 5
+                    weight_decay: 5 * 10 ** -4
+                    lr: 0.001
+
+
 
 
                     print_log("loading data: " + str(m))
@@ -408,8 +421,8 @@ if __name__ == "__main__":
                         # weight of attributes 
                         accs.append(0.5)
                         # normalize weights so their sum is 1
-                        weights = [float(i)/sum(accs) for i in accs]
-                        print("weights: ", weights)
+                        # weights = [float(i)/sum(accs) for i in accs]
+                        weights = accs * 2 
                         average_weight_index = len(inputs)
 
 
@@ -452,6 +465,8 @@ if __name__ == "__main__":
             if fuse_models:
                 print("final acc: ", final_acc/trials)
                 print("final f1: ", final_f1/trials)
+                print("weights: ", weights)
+
 
     
 
