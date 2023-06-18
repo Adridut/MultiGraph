@@ -422,7 +422,7 @@ if __name__ == "__main__":
                         accs.append(0.5)
                         # normalize weights so their sum is 1
                         # weights = [float(i)/sum(accs) for i in accs]
-                        weights = accs * 2 
+                        weights = accs  
                         average_weight_index = len(inputs)
 
 
