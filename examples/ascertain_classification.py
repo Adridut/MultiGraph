@@ -235,21 +235,21 @@ def train_builder(trial, model):
 if __name__ == "__main__":
     # set_seed(0)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
+    # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
-    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
     # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
 
-    label = "valence"
+    label = "arousal"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
     n_epoch = 10000
-    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
+    model_name = "SVM" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = True
@@ -330,27 +330,27 @@ if __name__ == "__main__":
                 for m in selected_modalities:
                     # n_hidden_layers = hds[i]
 
-                    adjacent_centers = d_adjacent_centers[i]
-                    clusters = d_clusters[i]
-                    drop_rate = d_drop_rate[i]
-                    k = d_k[i]
-                    k_cluster = d_k_cluster[i]
-                    k_nearest = d_k_nearest[i]
-                    k_structured = d_k_structured[i]
-                    # lr = d_lr[i]
-                    # weight_decay = d_weight_decay[i]
-                    wu_kmeans = d_wu_kmeans[i]
-                    wu_struct = d_wu_struct[i]
+                    # adjacent_centers = d_adjacent_centers[i]
+                    # clusters = d_clusters[i]
+                    # drop_rate = d_drop_rate[i]
+                    # k = d_k[i]
+                    # k_cluster = d_k_cluster[i]
+                    # k_nearest = d_k_nearest[i]
+                    # k_structured = d_k_structured[i]
+                    # # lr = d_lr[i]
+                    # # weight_decay = d_weight_decay[i]
+                    # wu_kmeans = d_wu_kmeans[i]
+                    # wu_struct = d_wu_struct[i]
 
-                    # adjacent_centers = 1
-                    # clusters = 400
-                    # drop_rate = 0.5
-                    # k = 4
-                    # k_cluster = 4 #64
-                    # k_nearest = 4 #64
-                    # k_structured = 8 #8
-                    # wu_kmeans = 10
-                    # wu_struct = 5
+                    adjacent_centers = 1
+                    clusters = 400
+                    drop_rate = 0.5
+                    k = 4
+                    k_cluster = 4 #64
+                    k_nearest = 4 #64
+                    k_structured = 8 #8
+                    wu_kmeans = 10
+                    wu_struct = 5
                     weight_decay: 5 * 10 ** -4
                     lr: 0.001
 
@@ -399,7 +399,7 @@ if __name__ == "__main__":
                     res, out = run(device, X, Y, train_mask, test_mask, val_mask, G, model, lr , weight_decay, n_epoch, model_name)
                     all_accs[i] += res['accuracy']
                     all_f1s[i] += res['f1_score']
-                    accs.append(res['accuracy'])
+                    accs.append(res['accuracy']**2)
                     inputs.append(out)
                     i += 1
 
@@ -414,15 +414,15 @@ if __name__ == "__main__":
                     n_conv = 2
                     he_dropout = 0.5
 
-                    if fusion_model=="HGNNP":
+                    if fusion_model=="HGNNP":   
                         G = Hypergraph(2088)
                         i = 0
 
                         # weight of attributes 
-                        accs.append(0.5)
+                        accs.append(0.5**2)
                         # normalize weights so their sum is 1
-                        # weights = [float(i)/sum(accs) for i in accs]
-                        weights = accs  
+                        weights = [float(i)/sum(accs) for i in accs]
+                        # weights = accs  
                         average_weight_index = len(inputs)
 
 
