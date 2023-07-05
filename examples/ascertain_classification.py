@@ -238,18 +238,17 @@ if __name__ == "__main__":
     # selected_modalities = [['ECG'], ['EEG'], ['EMO'], ['GSR']]
     # selected_modalities = [['GSR']]
     # selected_modalities = [['ECG', 'EMO']]
-    selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
+    # selected_modalities = [['ECG', 'EEG', 'EMO', 'GSR']]
     # selected_modalities=[[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]]
-    # selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
+    selected_modalities=[['ECG'], ['EEG'], ['EMO'], ['GSR'], ['ECG', 'EEG'], ['ECG', 'EMO'], ['ECG', 'GSR'], ['EEG', 'EMO'], ['EEG', 'GSR'], ['EMO', 'GSR'], ['ECG', 'EEG', 'EMO'], ['ECG', 'EEG', 'GSR'], ['ECG', 'EMO', 'GSR'], ['EEG', 'EMO', 'GSR'], ['ECG', 'EEG', 'EMO', 'GSR']]
 
-
-    label = "arousal"
+    label = "valence"
     train_ratio = 70
     val_ratio = 15
     test_ratio = 15
     n_classes = 2
     n_epoch = 10000
-    model_name = "SVM" #HGNN, HGNNP, NB, SVM
+    model_name = "DHGNN" #HGNN, HGNNP, NB, SVM
     fusion_model = "HGNNP"
     fuse_models = True
     use_attributes = True
@@ -414,7 +413,7 @@ if __name__ == "__main__":
                     n_conv = 2
                     he_dropout = 0.5
 
-                    if fusion_model=="HGNNP":   
+                    if fusion_model!="FC":   
                         G = Hypergraph(2088)
                         i = 0
 
